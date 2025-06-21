@@ -5695,7 +5695,7 @@ Tab:AddButton({
 })
 
 local Section = Tab:AddSection({
-	Name = "Developer"
+	Name = "Developer/Ceo"
 })
 
-Tab:AddParagraph("Developer","ne0e")
+Tab:AddParagraph("Developer/Ceo","ne0e")
