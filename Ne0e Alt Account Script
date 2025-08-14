@@ -1,14 +1,13 @@
--- Ne0e Alt Account Controller (Prefix'siz, sade komut kutusu, worm yok, çalışır sistem)
+-- Ne0e Alt Account Controller (Chat tabanlı, Remote yok, tamamen çalışır sistem)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
-    altAccount = "semih53sn2",   -- Alt hesabının kullanıcı adı
+    altAccount = "semih53sn2", -- Alt hesabının kullanıcı adı
     commands = { "goto", "follow", "stop" }
 }
 
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 local TextChatService = game:GetService("TextChatService")
 
 local isMain = (lp.Name == config.mainAccount)
@@ -34,15 +33,6 @@ if isAlt then
     label.TextColor3 = Color3.fromRGB(80, 255, 180)
     label.Font = Enum.Font.GothamBlack
     label.TextScaled = true
-end
-
--- REMOTE
-local REMOTE_NAME = "_Ne0eAltAccountRemote"
-local remote = game:GetService("ReplicatedStorage"):FindFirstChild(REMOTE_NAME)
-if not remote then
-    remote = Instance.new("RemoteEvent")
-    remote.Name = REMOTE_NAME
-    remote.Parent = game:GetService("ReplicatedStorage")
 end
 
 -- KOMUT KUTUSU (SADECE MAIN HESAPTA, prefix yok)
@@ -125,35 +115,16 @@ if isMain then
         -- Komut ve argüman ayır
         local cmd, arg = msg:match("^(%w+)%s*(.*)")
         if cmd then
-            remote:FireServer(cmd:lower(), arg)
+            -- Komutu chat'e yaz
+            game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents")
+                :WaitForChild("SayMessageRequest"):FireServer(msg, "All")
         end
     end)
 end
 
--- Komutları main hesap chatten veya kutudan gönderir, alt hesap dinler
-if isMain then
-    local function onChat(msg)
-        if lp.Name ~= config.mainAccount then return end
-        local cmd, arg = msg:match("^(%w+)%s*(.*)")
-        if cmd then
-            remote:FireServer(cmd:lower(), arg)
-        end
-    end
-
-    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-        TextChatService.MessageReceived:Connect(function(msg)
-            if msg.TextSource and msg.TextSource.UserId == lp.UserId then
-                onChat(msg.Text)
-            end
-        end)
-    else
-        Players.LocalPlayer.Chatted:Connect(onChat)
-    end
-end
-
+-- ALT HESAP KOMUT DİNLEME (Chat üzerinden)
 if isAlt then
-    remote.OnServerEvent:Connect(function(sender, cmd, arg)
-        if sender.Name ~= config.mainAccount then return end
+    local function handleCommand(cmd, arg)
         local char = lp.Character or lp.CharacterAdded:Wait()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if not hum then return end
@@ -188,5 +159,28 @@ if isAlt then
         if cmd == "stop" then
             _G._ne0e_following = false
         end
-    end)
+    end
+
+    -- Yeni chat sistemi
+    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+        TextChatService.MessageReceived:Connect(function(msg)
+            if msg.TextSource and msg.TextSource.Name == config.mainAccount then
+                local text = msg.Text
+                local cmd, arg = text:match("^(%w+)%s*(.*)")
+                if cmd then
+                    handleCommand(cmd:lower(), arg)
+                end
+            end
+        end)
+    else
+        -- Eski chat sistemi
+        Players.PlayerChatted:Connect(function(player, message)
+            if player.Name == config.mainAccount then
+                local cmd, arg = message:match("^(%w+)%s*(.*)")
+                if cmd then
+                    handleCommand(cmd:lower(), arg)
+                end
+            end
+        end)
+    end
 end
