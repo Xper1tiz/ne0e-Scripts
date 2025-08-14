@@ -1,4 +1,4 @@
--- Ne0e Alt Account Control (Fling & FlingAll güncel, .re ve .chat komutları eklendi)
+-- Ne0e Alt Account Control (bang & unbang komutları eklendi, flingall kaldırıldı)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
@@ -12,11 +12,12 @@ local config = {
         ".orbit <kullanıcı>",
         ".unorbit",
         ".fling <kullanıcı>",
-        ".flingall",
         ".lag",
         ".unlag",
         ".re",
-        ".chat <mesaj>"
+        ".chat <mesaj>",
+        ".bang <kullanıcı>",
+        ".unbang"
     }
 }
 
@@ -80,7 +81,7 @@ if isMain then
     gui.ResetOnSpawn = false
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 340, 0, 320)
+    main.Size = UDim2.new(0, 340, 0, 340)
     main.Position = UDim2.new(0, 40, 0, 120)
     main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
     main.BorderSizePixel = 0
@@ -167,6 +168,53 @@ if isAlt then
     local isSpinning = false
     local isOrbiting = false
     local isLagging = false
+
+    -- Bang değişkenleri
+    local bangActive = false
+    local bangConn = nil
+    local bangAnimTrack = nil
+
+    local function stopBang()
+        bangActive = false
+        if bangConn then bangConn:Disconnect() end
+        bangConn = nil
+        if bangAnimTrack then bangAnimTrack:Stop() end
+        bangAnimTrack = nil
+    end
+
+    local function bangPlayer(targetPlr)
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+        if not root or not targetRoot then return end
+
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+
+        -- Animasyon
+        local anim = Instance.new("Animation")
+        anim.AnimationId = "rbxassetid://148840371" -- Dance animasyonu (örnek)
+        bangAnimTrack = humanoid:LoadAnimation(anim)
+        bangAnimTrack.Looped = true
+        bangAnimTrack:Play()
+        game:GetService("Debris"):AddItem(anim, 2)
+
+        bangActive = true
+
+        -- Takip ve bang işlemi (arkasına ve çok yakın, çok hızlı)
+        bangConn = RunService.RenderStepped:Connect(function()
+            if not bangActive or not root or not targetRoot then return end
+            local behind = targetRoot.CFrame.Position - (targetRoot.CFrame.LookVector * 0.5)
+            local newCFrame = CFrame.new(behind, targetRoot.Position)
+            root.CFrame = root.CFrame:Lerp(newCFrame, 0.9)
+            if bangAnimTrack and not bangAnimTrack.IsPlaying then
+                bangAnimTrack:Play()
+            end
+        end)
+    end
 
     local function handleCommand(cmd, arg)
         local char = lp.Character or lp.CharacterAdded:Wait()
@@ -284,37 +332,6 @@ if isAlt then
             end
         end
 
-        -- .flingall
-        if cmd == "flingall" then
-            local char = lp.Character or lp.CharacterAdded:Wait()
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            for _, v in pairs(char:GetChildren()) do
-                if v:IsA("BasePart") then
-                    v.Massless = true
-                end
-            end
-
-            for _, target in ipairs(Players:GetPlayers()) do
-                if target ~= lp and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetHRP = target.Character.HumanoidRootPart
-                    local bav = Instance.new("BodyAngularVelocity", targetHRP)
-                    bav.Name = "Ne0eTargetFlingBAV"
-                    bav.AngularVelocity = Vector3.new(0, 1E5, 0)
-                    bav.MaxTorque = Vector3.new(0, math.huge, 0)
-                    bav.P = math.huge
-
-                    local t = tick()
-                    while tick() - t < 1.2 and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") do
-                        hrp.CFrame = target.Character.HumanoidRootPart.CFrame
-                        bav.AngularVelocity = Vector3.new(0, 1E5, 0)
-                        RunService.Heartbeat:Wait()
-                    end
-
-                    bav:Destroy()
-                end
-            end
-        end
-
         -- .lag
         if cmd == "lag" then
             if not isLagging then
@@ -361,6 +378,17 @@ if isAlt then
                     end
                 end
             end
+        end
+
+        -- .bang <kullanıcı>
+        if cmd == "bang" and target then
+            stopBang()
+            bangPlayer(target)
+        end
+
+        -- .unbang
+        if cmd == "unbang" then
+            stopBang()
         end
     end
 
