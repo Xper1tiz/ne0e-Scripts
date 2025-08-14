@@ -1,10 +1,10 @@
--- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma, komut kutusu, bildirim)
+-- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma, sadece komut listesi kutusu, scroll)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
     altAccount = "semih53sn2", -- Alt hesabının kullanıcı adı
     commands = {
-        ".goto <kullanıcı>", ".follow <kullanıcı>", ".stop",
+        ".goto <kullanıcı>", ".follow <kullanıcı>", ".stop"
         -- Buraya yeni komutlar ekleyebilirsiniz
     }
 }
@@ -59,15 +59,15 @@ if isAlt then
     label.TextScaled = true
 end
 
--- KOMUT KUTUSU (SADECE MAIN HESAPTA, scrollable)
+-- SADECE MAIN HESAPTA KOMUT LİSTESİ KUTUSU (scroll up/down)
 if isMain then
     local gui = Instance.new("ScreenGui")
-    gui.Name = "Ne0eAltAccountCmdBox"
+    gui.Name = "Ne0eAltAccountCmdList"
     gui.Parent = lp:WaitForChild("PlayerGui")
     gui.ResetOnSpawn = false
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 320, 0, 260)
+    main.Size = UDim2.new(0, 320, 0, 220)
     main.Position = UDim2.new(0, 40, 0, 120)
     main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
     main.BorderSizePixel = 0
@@ -80,7 +80,7 @@ if isMain then
     title.Size = UDim2.new(1, 0, 0, 32)
     title.Position = UDim2.new(0, 0, 0, 0)
     title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    title.Text = "Ne0e Alt Account Komut Kutusu"
+    title.Text = "Ne0e Alt Account Komutlar"
     title.TextColor3 = Color3.fromRGB(80, 180, 255)
     title.Font = Enum.Font.GothamBlack
     title.TextScaled = true
@@ -90,7 +90,7 @@ if isMain then
 
     -- Scrollable komut listesi
     local scroll = Instance.new("ScrollingFrame", main)
-    scroll.Size = UDim2.new(1, -24, 0, 150)
+    scroll.Size = UDim2.new(1, -24, 1, -52)
     scroll.Position = UDim2.new(0, 12, 0, 40)
     scroll.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
     scroll.BorderSizePixel = 0
@@ -117,30 +117,34 @@ if isMain then
         cmdLabel.TextXAlignment = Enum.TextXAlignment.Left
     end
 
-    local cmdBox = Instance.new("TextBox", main)
-    cmdBox.Size = UDim2.new(1, -24, 0, 32)
-    cmdBox.Position = UDim2.new(0, 12, 0, 200)
-    cmdBox.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    cmdBox.Text = ""
-    cmdBox.PlaceholderText = "Komut gir (örn: .goto KullaniciAdi)"
-    cmdBox.TextColor3 = Color3.fromRGB(30,30,40)
-    cmdBox.Font = Enum.Font.GothamBold
-    cmdBox.TextScaled = true
-    cmdBox.BorderSizePixel = 0
-    local cmdBoxCorner = Instance.new("UICorner", cmdBox)
-    cmdBoxCorner.CornerRadius = UDim.new(0, 8)
+    -- Scroll Up/Down Butonları
+    local scrollUp = Instance.new("TextButton", main)
+    scrollUp.Size = UDim2.new(0, 32, 0, 24)
+    scrollUp.Position = UDim2.new(1, -44, 0, 40)
+    scrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    scrollUp.Text = "▲"
+    scrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    scrollUp.Font = Enum.Font.GothamBold
+    scrollUp.TextScaled = true
+    local scrollUpCorner = Instance.new("UICorner", scrollUp)
+    scrollUpCorner.CornerRadius = UDim.new(0, 8)
 
-    cmdBox.FocusLost:Connect(function(enter)
-        if not enter then return end
-        local msg = cmdBox.Text
-        cmdBox.Text = ""
-        if msg == "" then return end
-        -- Komutu chat'e yaz (prefixli)
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-        if chatEvent then
-            chatEvent:FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
-        end
+    local scrollDown = Instance.new("TextButton", main)
+    scrollDown.Size = UDim2.new(0, 32, 0, 24)
+    scrollDown.Position = UDim2.new(1, -44, 1, -36)
+    scrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    scrollDown.Text = "▼"
+    scrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    scrollDown.Font = Enum.Font.GothamBold
+    scrollDown.TextScaled = true
+    local scrollDownCorner = Instance.new("UICorner", scrollDown)
+    scrollDownCorner.CornerRadius = UDim.new(0, 8)
+
+    scrollUp.MouseButton1Click:Connect(function()
+        scroll.CanvasPosition = Vector2.new(0, math.max(scroll.CanvasPosition.Y - 32, 0))
+    end)
+    scrollDown.MouseButton1Click:Connect(function()
+        scroll.CanvasPosition = Vector2.new(0, math.min(scroll.CanvasPosition.Y + 32, scroll.AbsoluteCanvasSize.Y - scroll.AbsoluteWindowSize.Y))
     end)
 end
 
