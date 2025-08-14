@@ -1,4 +1,4 @@
--- Ne0e Alt Account Controller (Chat tabanlı, Remote yok, tamamen çalışır sistem)
+-- Ne0e Basit Alt Account Control (Chat tabanlı, sade, güvenli, çalışır)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
@@ -116,8 +116,11 @@ if isMain then
         local cmd, arg = msg:match("^(%w+)%s*(.*)")
         if cmd then
             -- Komutu chat'e yaz
-            game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents")
-                :WaitForChild("SayMessageRequest"):FireServer(msg, "All")
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+            if chatEvent then
+                chatEvent:FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
+            end
         end
     end)
 end
@@ -174,13 +177,25 @@ if isAlt then
         end)
     else
         -- Eski chat sistemi
-        Players.PlayerChatted:Connect(function(player, message)
-            if player.Name == config.mainAccount then
-                local cmd, arg = message:match("^(%w+)%s*(.*)")
-                if cmd then
-                    handleCommand(cmd:lower(), arg)
+        for _, player in ipairs(Players:GetPlayers()) do
+            player.Chatted:Connect(function(message)
+                if player.Name == config.mainAccount then
+                    local cmd, arg = message:match("^(%w+)%s*(.*)")
+                    if cmd then
+                        handleCommand(cmd:lower(), arg)
+                    end
                 end
-            end
+            end)
+        end
+        Players.PlayerAdded:Connect(function(player)
+            player.Chatted:Connect(function(message)
+                if player.Name == config.mainAccount then
+                    local cmd, arg = message:match("^(%w+)%s*(.*)")
+                    if cmd then
+                        handleCommand(cmd:lower(), arg)
+                    end
+                end
+            end)
         end)
     end
 end
