@@ -1,17 +1,30 @@
--- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma)
+-- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma, komut kutusu, bildirim)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
     altAccount = "semih53sn2", -- Alt hesabının kullanıcı adı
-    commands = { "goto", "follow", "stop" }
+    commands = {
+        ".goto <kullanıcı>", ".follow <kullanıcı>", ".stop",
+        -- Buraya yeni komutlar ekleyebilirsiniz
+    }
 }
 
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 local TextChatService = game:GetService("TextChatService")
+local StarterGui = game:GetService("StarterGui")
 
 local isMain = (lp.Name == config.mainAccount)
 local isAlt = (lp.Name == config.altAccount)
+
+-- Bildirim
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "Ne0e Alt Control",
+        Text = "Script başarıyla başlatıldı!",
+        Duration = 5
+    })
+end)
 
 -- Kısmi isimle oyuncu bulma
 local function findPlayerByPartialName(partial)
@@ -44,6 +57,91 @@ if isAlt then
     label.TextColor3 = Color3.fromRGB(80, 255, 180)
     label.Font = Enum.Font.GothamBlack
     label.TextScaled = true
+end
+
+-- KOMUT KUTUSU (SADECE MAIN HESAPTA, scrollable)
+if isMain then
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "Ne0eAltAccountCmdBox"
+    gui.Parent = lp:WaitForChild("PlayerGui")
+    gui.ResetOnSpawn = false
+
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 320, 0, 260)
+    main.Position = UDim2.new(0, 40, 0, 120)
+    main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+    local mainCorner = Instance.new("UICorner", main)
+    mainCorner.CornerRadius = UDim.new(0, 12)
+
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1, 0, 0, 32)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+    title.Text = "Ne0e Alt Account Komut Kutusu"
+    title.TextColor3 = Color3.fromRGB(80, 180, 255)
+    title.Font = Enum.Font.GothamBlack
+    title.TextScaled = true
+    title.BorderSizePixel = 0
+    local titleCorner = Instance.new("UICorner", title)
+    titleCorner.CornerRadius = UDim.new(0, 12)
+
+    -- Scrollable komut listesi
+    local scroll = Instance.new("ScrollingFrame", main)
+    scroll.Size = UDim2.new(1, -24, 0, 150)
+    scroll.Position = UDim2.new(0, 12, 0, 40)
+    scroll.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    scroll.BorderSizePixel = 0
+    scroll.CanvasSize = UDim2.new(0, 0, 0, #config.commands * 32)
+    scroll.ScrollBarThickness = 8
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+
+    local scrollCorner = Instance.new("UICorner", scroll)
+    scrollCorner.CornerRadius = UDim.new(0, 8)
+
+    local layout = Instance.new("UIListLayout", scroll)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 4)
+
+    for _, v in ipairs(config.commands) do
+        local cmdLabel = Instance.new("TextLabel", scroll)
+        cmdLabel.Size = UDim2.new(1, -8, 0, 28)
+        cmdLabel.BackgroundTransparency = 1
+        cmdLabel.TextColor3 = Color3.fromRGB(180, 220, 255)
+        cmdLabel.Font = Enum.Font.Gotham
+        cmdLabel.TextSize = 16
+        cmdLabel.Text = v
+        cmdLabel.TextXAlignment = Enum.TextXAlignment.Left
+    end
+
+    local cmdBox = Instance.new("TextBox", main)
+    cmdBox.Size = UDim2.new(1, -24, 0, 32)
+    cmdBox.Position = UDim2.new(0, 12, 0, 200)
+    cmdBox.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    cmdBox.Text = ""
+    cmdBox.PlaceholderText = "Komut gir (örn: .goto KullaniciAdi)"
+    cmdBox.TextColor3 = Color3.fromRGB(30,30,40)
+    cmdBox.Font = Enum.Font.GothamBold
+    cmdBox.TextScaled = true
+    cmdBox.BorderSizePixel = 0
+    local cmdBoxCorner = Instance.new("UICorner", cmdBox)
+    cmdBoxCorner.CornerRadius = UDim.new(0, 8)
+
+    cmdBox.FocusLost:Connect(function(enter)
+        if not enter then return end
+        local msg = cmdBox.Text
+        cmdBox.Text = ""
+        if msg == "" then return end
+        -- Komutu chat'e yaz (prefixli)
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+        if chatEvent then
+            chatEvent:FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
+        end
+    end)
 end
 
 -- ALT HESAP KOMUT DİNLEME (.prefix ve oto isim)
