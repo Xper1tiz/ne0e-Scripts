@@ -17,7 +17,7 @@ local config = {
         ".re",
         ".chat <mesaj>",
         ".bang <kullanıcı>",
-        ".unbang",
+        ".unbang"
     }
 }
 
