@@ -1,4 +1,13 @@
--- Ne0e Basit Alt Account Control (Chat tabanlı, sade, güvenli, çalışır)
+--[[
+██████╗ ██╗   ██╗    ███████╗██╗██╗  ██╗██████╗ ███████╗███╗   ██╗███╗   ██╗██╗   ██╗     ███████╗ ██████╗ ██╗  ██╗██╗  ██╗
+██╔══██╗╚██╗ ██╔╝    ██╔════╝██║╚██╗██╔╝██╔══██╗██╔════╝████╗  ██║████╗  ██║╚██╗ ██╔╝     ██╔════╝██╔═══██╗╚██╗██╔╝██║  ██║
+██████╔╝ ╚████╔╝     ███████╗██║ ╚███╔╝ ██████╔╝█████╗  ██╔██╗ ██║██╔██╗ ██║ ╚████╔╝      █████╗  ██║   ██║ ╚███╔╝ ███████║
+██╔══██╗  ╚██╔╝      ╚════██║██║ ██╔██╗ ██╔═══╝ ██╔══╝  ██║╚██╗██║██║╚██╗██║  ╚██╔╝       ██╔══╝  ██║   ██║ ██╔██╗ ╚════██║
+██████╔╝   ██║       ███████║██║██╔╝ ██╗██║     ███████╗██║ ╚████║██║ ╚████║   ██║███████╗██║     ╚██████╔╝██╔╝ ██╗     ██║
+╚═════╝    ╚═╝       ╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═══╝   ╚═╝╚══════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝     ╚═╝
+]]
+
+-- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
@@ -12,6 +21,17 @@ local TextChatService = game:GetService("TextChatService")
 
 local isMain = (lp.Name == config.mainAccount)
 local isAlt = (lp.Name == config.altAccount)
+
+-- Kısmi isimle oyuncu bulma
+local function findPlayerByPartialName(partial)
+    partial = partial:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Name:lower():sub(1, #partial) == partial then
+            return plr
+        end
+    end
+    return nil
+end
 
 -- ALT HESAPTA SİYAH EKRAN VE YAZI
 if isAlt then
@@ -35,113 +55,26 @@ if isAlt then
     label.TextScaled = true
 end
 
--- KOMUT KUTUSU (SADECE MAIN HESAPTA, prefix yok)
-if isMain then
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "Ne0eAltAccountCmdBox"
-    gui.Parent = lp:WaitForChild("PlayerGui")
-    gui.ResetOnSpawn = false
-
-    local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 260, 0, 160)
-    main.Position = UDim2.new(0, 40, 0, 120)
-    main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
-    main.BorderSizePixel = 0
-    main.Active = true
-    main.Draggable = true
-    local mainCorner = Instance.new("UICorner", main)
-    mainCorner.CornerRadius = UDim.new(0, 12)
-
-    local title = Instance.new("TextLabel", main)
-    title.Size = UDim2.new(1, 0, 0, 32)
-    title.Position = UDim2.new(0, 0, 0, 0)
-    title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    title.Text = "Ne0e Alt Account Komut Kutusu"
-    title.TextColor3 = Color3.fromRGB(80, 180, 255)
-    title.Font = Enum.Font.GothamBlack
-    title.TextScaled = true
-    title.BorderSizePixel = 0
-    local titleCorner = Instance.new("UICorner", title)
-    titleCorner.CornerRadius = UDim.new(0, 12)
-
-    local komutFrame = Instance.new("Frame", main)
-    komutFrame.Size = UDim2.new(1, -24, 0, 60)
-    komutFrame.Position = UDim2.new(0, 12, 0, 40)
-    komutFrame.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
-    komutFrame.BorderSizePixel = 0
-    local komutCorner = Instance.new("UICorner", komutFrame)
-    komutCorner.CornerRadius = UDim.new(0, 8)
-
-    local komutList = Instance.new("TextLabel", komutFrame)
-    komutList.Size = UDim2.new(1, -8, 1, -8)
-    komutList.Position = UDim2.new(0, 4, 0, 4)
-    komutList.BackgroundTransparency = 1
-    komutList.TextColor3 = Color3.fromRGB(180, 220, 255)
-    komutList.Font = Enum.Font.Gotham
-    komutList.TextScaled = false
-    komutList.TextSize = 14
-    komutList.TextWrapped = true
-    komutList.TextXAlignment = Enum.TextXAlignment.Left
-    komutList.TextYAlignment = Enum.TextYAlignment.Top
-
-    -- Komutları göster
-    local komutlarText = ""
-    for i, v in ipairs(config.commands) do
-        komutlarText = komutlarText .. v
-        if i < #config.commands then
-            komutlarText = komutlarText .. "   "
-        end
-    end
-    komutList.Text = komutlarText
-
-    local cmdBox = Instance.new("TextBox", main)
-    cmdBox.Size = UDim2.new(1, -24, 0, 32)
-    cmdBox.Position = UDim2.new(0, 12, 0, 108)
-    cmdBox.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    cmdBox.Text = ""
-    cmdBox.PlaceholderText = "Komut gir (örn: goto KullaniciAdi)"
-    cmdBox.TextColor3 = Color3.fromRGB(30,30,40)
-    cmdBox.Font = Enum.Font.GothamBold
-    cmdBox.TextScaled = true
-    cmdBox.BorderSizePixel = 0
-    local cmdBoxCorner = Instance.new("UICorner", cmdBox)
-    cmdBoxCorner.CornerRadius = UDim.new(0, 8)
-
-    cmdBox.FocusLost:Connect(function(enter)
-        if not enter then return end
-        local msg = cmdBox.Text
-        cmdBox.Text = ""
-        if msg == "" then return end
-        -- Komut ve argüman ayır
-        local cmd, arg = msg:match("^(%w+)%s*(.*)")
-        if cmd then
-            -- Komutu chat'e yaz
-            local ReplicatedStorage = game:GetService("ReplicatedStorage")
-            local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-            if chatEvent then
-                chatEvent:FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
-            end
-        end
-    end)
-end
-
--- ALT HESAP KOMUT DİNLEME (Chat üzerinden)
+-- ALT HESAP KOMUT DİNLEME (.prefix ve oto isim)
 if isAlt then
     local function handleCommand(cmd, arg)
         local char = lp.Character or lp.CharacterAdded:Wait()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if not hum then return end
 
-        if cmd == "goto" and arg and arg ~= "" then
-            local target = Players:FindFirstChild(arg)
-            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local target = nil
+        if arg and arg ~= "" then
+            target = findPlayerByPartialName(arg)
+        end
+
+        if cmd == "goto" and target then
+            if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                 char:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(0,2,0))
             end
         end
 
-        if cmd == "follow" and arg and arg ~= "" then
-            local target = Players:FindFirstChild(arg)
-            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        if cmd == "follow" and target then
+            if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                 if not _G._ne0e_following then
                     _G._ne0e_following = true
                     spawn(function()
@@ -169,7 +102,7 @@ if isAlt then
         TextChatService.MessageReceived:Connect(function(msg)
             if msg.TextSource and msg.TextSource.Name == config.mainAccount then
                 local text = msg.Text
-                local cmd, arg = text:match("^(%w+)%s*(.*)")
+                local cmd, arg = text:match("^%.(%w+)%s*(.*)") -- .prefix ile
                 if cmd then
                     handleCommand(cmd:lower(), arg)
                 end
@@ -180,7 +113,7 @@ if isAlt then
         for _, player in ipairs(Players:GetPlayers()) do
             player.Chatted:Connect(function(message)
                 if player.Name == config.mainAccount then
-                    local cmd, arg = message:match("^(%w+)%s*(.*)")
+                    local cmd, arg = message:match("^%.(%w+)%s*(.*)") -- .prefix ile
                     if cmd then
                         handleCommand(cmd:lower(), arg)
                     end
@@ -190,7 +123,7 @@ if isAlt then
         Players.PlayerAdded:Connect(function(player)
             player.Chatted:Connect(function(message)
                 if player.Name == config.mainAccount then
-                    local cmd, arg = message:match("^(%w+)%s*(.*)")
+                    local cmd, arg = message:match("^%.(%w+)%s*(.*)") -- .prefix ile
                     if cmd then
                         handleCommand(cmd:lower(), arg)
                     end
