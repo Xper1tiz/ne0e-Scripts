@@ -1,4 +1,4 @@
--- Ne0e Alt Account Control (headsit fix, dance komutları sadece panelde, stop ile dans durdurma, dance2 fixli, laugh kaldırıldı)
+-- Ne0e Alt Account Control (mirror, spinorbit, bodyguard, gelişmiş dans paneli, animasyon scroll up/down)
 
 local config = {
     mainAccount = "Xper1tiz",
@@ -11,6 +11,7 @@ local config = {
         ".unspin",
         ".orbit <kullanıcı>",
         ".unorbit",
+        ".spinorbit <kullanıcı>",
         ".fling <kullanıcı>",
         ".lag",
         ".unlag",
@@ -20,13 +21,20 @@ local config = {
         ".unbang",
         ".headsit <kullanıcı>",
         ".unheadsit",
+        ".mirror <kullanıcı>",
+        ".bodyguard <kullanıcı>",
         ".quit"
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
     dancePanelCommands = {
-        {name = ".dance1", anim = "rbxassetid://33796059"},   -- R6 dance1
-        {name = ".dance2", anim = "rbxassetid://248263260"},  -- R6 dance2 (doğru asset)
-        {name = ".dance3", anim = "rbxassetid://28488254"}    -- R6 dance3
+        {name = ".dance1", anim = "rbxassetid://33796059"},
+        {name = ".dance2", anim = "rbxassetid://248263260"},
+        {name = ".dance3", anim = "rbxassetid://28488254"},
+        {name = ".dance4", anim = "rbxassetid://182435998"}, -- ek danslar
+        {name = ".dance5", anim = "rbxassetid://507771019"},
+        {name = ".dance6", anim = "rbxassetid://507776043"},
+        {name = ".dance7", anim = "rbxassetid://507777268"},
+        {name = ".dance8", anim = "rbxassetid://507777451"}
     }
 }
 
@@ -40,7 +48,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local isMain = (lp.Name == config.mainAccount)
 local isAlt = (lp.Name == config.altAccount)
 
--- Bildirim
 pcall(function()
     StarterGui:SetCore("SendNotification", {
         Title = "Ne0e Alt Control",
@@ -49,7 +56,6 @@ pcall(function()
     })
 end)
 
--- Kısmi isimle oyuncu bulma
 local function findPlayerByPartialName(partial)
     partial = partial:lower()
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -60,7 +66,6 @@ local function findPlayerByPartialName(partial)
     return nil
 end
 
--- ALT HESAPTA SİYAH EKRAN VE YAZI
 if isAlt then
     local gui = Instance.new("ScreenGui")
     gui.Name = "Ne0eAltAccountScreen"
@@ -82,7 +87,6 @@ if isAlt then
     label.TextScaled = true
 end
 
--- SADECE MAIN HESAPTA KOMUT LİSTESİ VE ANİMASYON PANELİ (birleşik)
 if isMain then
     local gui = Instance.new("ScreenGui")
     gui.Name = "Ne0eAltAccountCmdList"
@@ -126,7 +130,7 @@ if isMain then
 
     -- Animasyon paneli (sola birleşik, başlangıçta kapalı)
     local animPanel = Instance.new("Frame", gui)
-    animPanel.Size = UDim2.new(0, 140, 0, 140)
+    animPanel.Size = UDim2.new(0, 180, 0, 220)
     animPanel.Position = UDim2.new(0, 0, 0, 120)
     animPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
     animPanel.Visible = false
@@ -147,11 +151,11 @@ if isMain then
     animTitleCorner.CornerRadius = UDim.new(0, 12)
 
     local animScroll = Instance.new("ScrollingFrame", animPanel)
-    animScroll.Size = UDim2.new(1, -16, 1, -40)
+    animScroll.Size = UDim2.new(1, -16, 1, -64)
     animScroll.Position = UDim2.new(0, 8, 0, 36)
     animScroll.BackgroundTransparency = 1
     animScroll.CanvasSize = UDim2.new(0, 0, 0, #config.dancePanelCommands * 32)
-    animScroll.ScrollBarThickness = 6
+    animScroll.ScrollBarThickness = 0
     animScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
     animScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
@@ -169,6 +173,36 @@ if isMain then
         animLabel.Text = v.name
         animLabel.TextXAlignment = Enum.TextXAlignment.Left
     end
+
+    -- Animasyon scroll up/down
+    local animScrollUp = Instance.new("TextButton", animPanel)
+    animScrollUp.Size = UDim2.new(0, 32, 0, 24)
+    animScrollUp.Position = UDim2.new(1, -40, 0, 36)
+    animScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    animScrollUp.Text = "▲"
+    animScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    animScrollUp.Font = Enum.Font.GothamBold
+    animScrollUp.TextScaled = true
+    local animScrollUpCorner = Instance.new("UICorner", animScrollUp)
+    animScrollUpCorner.CornerRadius = UDim.new(0, 8)
+
+    local animScrollDown = Instance.new("TextButton", animPanel)
+    animScrollDown.Size = UDim2.new(0, 32, 0, 24)
+    animScrollDown.Position = UDim2.new(1, -40, 1, -32)
+    animScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    animScrollDown.Text = "▼"
+    animScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    animScrollDown.Font = Enum.Font.GothamBold
+    animScrollDown.TextScaled = true
+    local animScrollDownCorner = Instance.new("UICorner", animScrollDown)
+    animScrollDownCorner.CornerRadius = UDim.new(0, 8)
+
+    animScrollUp.MouseButton1Click:Connect(function()
+        animScroll.CanvasPosition = Vector2.new(0, math.max(animScroll.CanvasPosition.Y - 32, 0))
+    end)
+    animScrollDown.MouseButton1Click:Connect(function()
+        animScroll.CanvasPosition = Vector2.new(0, math.min(animScroll.CanvasPosition.Y + 32, animScroll.AbsoluteCanvasSize.Y - animScroll.AbsoluteWindowSize.Y))
+    end)
 
     -- Komut listesi
     local scroll = Instance.new("ScrollingFrame", main)
@@ -241,24 +275,29 @@ if isMain then
     end)
 end
 
--- ALT HESAP KOMUT DİNLEME (.prefix ve oto isim)
 if isAlt then
     local spinObj, orbitConn, lagConn
     local isSpinning = false
     local isOrbiting = false
     local isLagging = false
 
-    -- Bang değişkenleri
     local bangActive = false
     local bangConn = nil
     local bangAnimTrack = nil
 
-    -- Headsit değişkenleri
     local headsitActive = false
     local headsitConn = nil
 
-    -- Animasyon değişkenleri
     local animTrack = nil
+
+    local mirrorConn = nil
+    local mirrorActive = false
+
+    local spinorbitConn = nil
+    local spinorbitActive = false
+
+    local bodyguardConn = nil
+    local bodyguardActive = false
 
     local function stopBang()
         bangActive = false
@@ -318,7 +357,6 @@ if isAlt then
         headsitActive = true
         headsitConn = RunService.Heartbeat:Connect(function()
             if not headsitActive or not root or not targetHead then return end
-            -- Head'in üstüne oturur gibi pozisyonla (daha stabil)
             local above = targetHead.Position + Vector3.new(0, 1.1, 0)
             root.CFrame = CFrame.new(above, targetHead.Position + Vector3.new(0, 2, 0))
             root.Velocity = Vector3.new(0,0,0)
@@ -345,6 +383,87 @@ if isAlt then
         animTrack = nil
     end
 
+    local function stopMirror()
+        mirrorActive = false
+        if mirrorConn then mirrorConn:Disconnect() end
+        mirrorConn = nil
+    end
+
+    local function mirrorPlayer(targetPlr)
+        stopMirror()
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
+        if not root or not targetRoot or not hum or not targetHum then return end
+
+        mirrorActive = true
+        mirrorConn = RunService.RenderStepped:Connect(function()
+            if not mirrorActive or not root or not targetRoot then return end
+            root.CFrame = targetRoot.CFrame
+            hum.MoveDirection = targetHum.MoveDirection
+            hum.Jump = targetHum.Jump
+            -- Animasyonlar için eklenebilir
+        end)
+    end
+
+    local function stopSpinOrbit()
+        spinorbitActive = false
+        if spinorbitConn then spinorbitConn:Disconnect() end
+        spinorbitConn = nil
+    end
+
+    local function spinOrbitPlayer(targetPlr)
+        stopSpinOrbit()
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+        if not root or not targetRoot then return end
+
+        local angle = 0
+        local radius = 6
+        local speed = 4
+        spinorbitActive = true
+        spinorbitConn = RunService.Heartbeat:Connect(function(dt)
+            if not spinorbitActive or not root or not targetRoot then return end
+            angle = angle + dt * speed
+            local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+            root.CFrame = CFrame.new(targetRoot.Position + offset, targetRoot.Position) * CFrame.Angles(0, math.rad(720 * dt), 0)
+        end)
+    end
+
+    local function stopBodyguard()
+        bodyguardActive = false
+        if bodyguardConn then bodyguardConn:Disconnect() end
+        bodyguardConn = nil
+    end
+
+    local function bodyguardPlayer(targetPlr)
+        stopBodyguard()
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+        if not root or not targetRoot then return end
+
+        local angle = 0
+        local radius = 3
+        local speed = 6
+        bodyguardActive = true
+        bodyguardConn = RunService.Heartbeat:Connect(function(dt)
+            if not bodyguardActive or not root or not targetRoot then return end
+            angle = angle + dt * speed
+            local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+            root.CFrame = CFrame.new(targetRoot.Position + offset, targetRoot.Position)
+        end)
+    end
+
     local function handleCommand(cmd, arg)
         local char = lp.Character or lp.CharacterAdded:Wait()
         local hum = char:FindFirstChildOfClass("Humanoid")
@@ -355,14 +474,12 @@ if isAlt then
             target = findPlayerByPartialName(arg)
         end
 
-        -- .goto
         if cmd == "goto" and target then
             if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                 char:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(0,2,0))
             end
         end
 
-        -- .follow
         if cmd == "follow" and target then
             if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                 if not _G._ne0e_following then
@@ -382,13 +499,14 @@ if isAlt then
             end
         end
 
-        -- .stop
         if cmd == "stop" then
             _G._ne0e_following = false
             stopAnim()
+            stopMirror()
+            stopSpinOrbit()
+            stopBodyguard()
         end
 
-        -- .spin
         if cmd == "spin" then
             if not isSpinning and char:FindFirstChild("HumanoidRootPart") then
                 isSpinning = true
@@ -400,7 +518,6 @@ if isAlt then
             end
         end
 
-        -- .unspin
         if cmd == "unspin" then
             isSpinning = false
             if spinObj and spinObj.Parent then
@@ -408,7 +525,6 @@ if isAlt then
             end
         end
 
-        -- .orbit <kullanıcı>
         if cmd == "orbit" and target then
             if not isOrbiting and char:FindFirstChild("HumanoidRootPart") then
                 isOrbiting = true
@@ -424,7 +540,6 @@ if isAlt then
             end
         end
 
-        -- .unorbit
         if cmd == "unorbit" then
             isOrbiting = false
             if orbitConn then
@@ -433,7 +548,6 @@ if isAlt then
             end
         end
 
-        -- .fling <kullanıcı>
         if cmd == "fling" and target then
             local char = lp.Character or lp.CharacterAdded:Wait()
             local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -462,7 +576,6 @@ if isAlt then
             end
         end
 
-        -- .lag
         if cmd == "lag" then
             if not isLagging then
                 isLagging = true
@@ -474,7 +587,6 @@ if isAlt then
             end
         end
 
-        -- .unlag
         if cmd == "unlag" then
             isLagging = false
             if lagConn then
@@ -483,14 +595,12 @@ if isAlt then
             end
         end
 
-        -- .re (reset)
         if cmd == "re" then
             if hum then
                 hum.Health = 0
             end
         end
 
-        -- .chat <mesaj>
         if cmd == "chat" and arg and arg ~= "" then
             if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
                 local channel = TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral
@@ -508,37 +618,47 @@ if isAlt then
             end
         end
 
-        -- .bang <kullanıcı>
         if cmd == "bang" and target then
             stopBang()
             bangPlayer(target)
         end
 
-        -- .unbang
         if cmd == "unbang" then
             stopBang()
         end
 
-        -- .headsit <kullanıcı>
         if cmd == "headsit" and target then
             headsitPlayer(target)
         end
 
-        -- .unheadsit
         if cmd == "unheadsit" then
             stopHeadsit()
         end
 
         -- DANCE KOMUTLARI (sadece panelde gösterilir)
         for _, v in ipairs(config.dancePanelCommands) do
-            if cmd == v.name:sub(2) then -- örn: "dance1"
+            if cmd == v.name:sub(2) then
                 playAnim(v.anim)
             end
         end
 
+        -- .mirror <kullanıcı>
+        if cmd == "mirror" and target then
+            mirrorPlayer(target)
+        end
+
+        -- .spinorbit <kullanıcı>
+        if cmd == "spinorbit" and target then
+            spinOrbitPlayer(target)
+        end
+
+        -- .bodyguard <kullanıcı>
+        if cmd == "bodyguard" and target then
+            bodyguardPlayer(target)
+        end
+
         -- .quit
         if cmd == "quit" then
-            -- Chat'e "Quitting..." yaz
             if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
                 local channel = TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral
                 if channel then
@@ -558,7 +678,6 @@ if isAlt then
         end
     end
 
-    -- Yeni chat sistemi
     if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
         TextChatService.MessageReceived:Connect(function(msg)
             if msg.TextSource and msg.TextSource.Name == config.mainAccount then
