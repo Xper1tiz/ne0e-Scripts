@@ -1,4 +1,4 @@
--- Ne0e Alt Account Control (R6 dance/laugh, headsit, quit, animasyon paneli, komut kutusu güncellendi)
+-- Ne0e Alt Account Control (R6 dance/laugh, headsit, quit, birleşik animasyon paneli, komut kutusu güncellendi)
 
 local config = {
     mainAccount = "Xper1tiz",
@@ -19,14 +19,20 @@ local config = {
         ".bang <kullanıcı>",
         ".unbang",
         ".headsit <kullanıcı>",
-        ".unheadsit"
-    },
-    animCommands = {
-        {name = ".dance1", anim = "rbxassetid://33796059"},
-        {name = ".dance2", anim = "rbxassetid://35654637"},
-        {name = ".dance3", anim = "rbxassetid://28488254"},
-        {name = ".laugh",  anim = "rbxassetid://33796059"} -- R6 için örnek laugh (değiştirilebilir)
+        ".unheadsit",
+        ".dance1",
+        ".dance2",
+        ".dance3",
+        ".laugh",
+        ".quit"
     }
+}
+
+local danceAnims = {
+    dance1 = "rbxassetid://33796059", -- Roblox R6 dance1
+    dance2 = "rbxassetid://33796056", -- Roblox R6 dance2
+    dance3 = "rbxassetid://28488254", -- Roblox R6 dance3
+    laugh  = "rbxassetid://33796457"  -- Roblox R6 laugh
 }
 
 local Players = game:GetService("Players")
@@ -35,7 +41,6 @@ local TextChatService = game:GetService("TextChatService")
 local StarterGui = game:GetService("StarterGui")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TeleportService = game:GetService("TeleportService")
 
 local isMain = (lp.Name == config.mainAccount)
 local isAlt = (lp.Name == config.altAccount)
@@ -82,7 +87,7 @@ if isAlt then
     label.TextScaled = true
 end
 
--- SADECE MAIN HESAPTA KOMUT LİSTESİ VE ANİMASYON PANELİ
+-- SADECE MAIN HESAPTA KOMUT LİSTESİ VE ANİMASYON PANELİ (birleşik)
 if isMain then
     local gui = Instance.new("ScreenGui")
     gui.Name = "Ne0eAltAccountCmdList"
@@ -90,7 +95,7 @@ if isMain then
     gui.ResetOnSpawn = false
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 340, 0, 380)
+    main.Size = UDim2.new(0, 340, 0, 400)
     main.Position = UDim2.new(0, 40, 0, 120)
     main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
     main.BorderSizePixel = 0
@@ -111,7 +116,7 @@ if isMain then
     local titleCorner = Instance.new("UICorner", title)
     titleCorner.CornerRadius = UDim.new(0, 12)
 
-    -- Animasyon paneli açma oku
+    -- Animasyon paneli açma oku (sola birleşik)
     local animArrow = Instance.new("TextButton", main)
     animArrow.Size = UDim2.new(0, 28, 0, 44)
     animArrow.Position = UDim2.new(0, -32, 0, 40)
@@ -124,10 +129,10 @@ if isMain then
     local animArrowCorner = Instance.new("UICorner", animArrow)
     animArrowCorner.CornerRadius = UDim.new(0, 8)
 
-    -- Animasyon paneli (başlangıçta kapalı)
+    -- Animasyon paneli (sola birleşik, başlangıçta kapalı)
     local animPanel = Instance.new("Frame", gui)
-    animPanel.Size = UDim2.new(0, 180, 0, 220)
-    animPanel.Position = UDim2.new(0, 388, 0, 120)
+    animPanel.Size = UDim2.new(0, 140, 0, 220)
+    animPanel.Position = UDim2.new(0, 0, 0, 120)
     animPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
     animPanel.Visible = false
     animPanel.BorderSizePixel = 0
@@ -138,7 +143,7 @@ if isMain then
     animTitle.Size = UDim2.new(1, 0, 0, 32)
     animTitle.Position = UDim2.new(0, 0, 0, 0)
     animTitle.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    animTitle.Text = "Animasyon Komutları"
+    animTitle.Text = "Animasyonlar"
     animTitle.TextColor3 = Color3.fromRGB(80, 255, 180)
     animTitle.Font = Enum.Font.GothamBlack
     animTitle.TextScaled = true
@@ -150,7 +155,7 @@ if isMain then
     animScroll.Size = UDim2.new(1, -16, 1, -48)
     animScroll.Position = UDim2.new(0, 8, 0, 40)
     animScroll.BackgroundTransparency = 1
-    animScroll.CanvasSize = UDim2.new(0, 0, 0, #config.animCommands * 32)
+    animScroll.CanvasSize = UDim2.new(0, 0, 0, 4 * 32)
     animScroll.ScrollBarThickness = 6
     animScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
     animScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
@@ -159,14 +164,15 @@ if isMain then
     animLayout.SortOrder = Enum.SortOrder.LayoutOrder
     animLayout.Padding = UDim.new(0, 4)
 
-    for _, v in ipairs(config.animCommands) do
+    local animNames = {".dance1", ".dance2", ".dance3", ".laugh"}
+    for _, v in ipairs(animNames) do
         local animLabel = Instance.new("TextLabel", animScroll)
         animLabel.Size = UDim2.new(1, -8, 0, 28)
         animLabel.BackgroundTransparency = 1
         animLabel.TextColor3 = Color3.fromRGB(180, 255, 180)
         animLabel.Font = Enum.Font.Gotham
         animLabel.TextSize = 16
-        animLabel.Text = v.name
+        animLabel.Text = v
         animLabel.TextXAlignment = Enum.TextXAlignment.Left
     end
 
@@ -229,25 +235,15 @@ if isMain then
         scroll.CanvasPosition = Vector2.new(0, math.min(scroll.CanvasPosition.Y + 32, scroll.AbsoluteCanvasSize.Y - scroll.AbsoluteWindowSize.Y))
     end)
 
-    -- Quit tuşu (her zaman en altta)
-    local quitBtn = Instance.new("TextButton", main)
-    quitBtn.Size = UDim2.new(1, -24, 0, 36)
-    quitBtn.Position = UDim2.new(0, 12, 1, -44)
-    quitBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    quitBtn.Text = "QUIT (.quit)"
-    quitBtn.TextColor3 = Color3.fromRGB(30,30,40)
-    quitBtn.Font = Enum.Font.GothamBold
-    quitBtn.TextScaled = true
-    quitBtn.BorderSizePixel = 0
-    local quitBtnCorner = Instance.new("UICorner", quitBtn)
-    quitBtnCorner.CornerRadius = UDim.new(0, 10)
-
     -- Animasyon paneli aç/kapat
     local animOpen = false
     animArrow.MouseButton1Click:Connect(function()
         animOpen = not animOpen
         animPanel.Visible = animOpen
         animArrow.Text = animOpen and "◀" or "▶"
+        if animOpen then
+            animPanel.Position = UDim2.new(0, main.Position.X.Offset - animPanel.Size.X.Offset - 8, 0, main.Position.Y.Offset + 40)
+        end
     end)
 end
 
@@ -536,10 +532,8 @@ if isAlt then
         end
 
         -- .dance1, .dance2, .dance3, .laugh (R6 animasyonları)
-        for _, anim in ipairs(config.animCommands) do
-            if cmd == anim.name:sub(2) then -- örn: "dance1"
-                playAnim(anim.anim)
-            end
+        if danceAnims[cmd] then
+            playAnim(danceAnims[cmd])
         end
 
         -- .quit
