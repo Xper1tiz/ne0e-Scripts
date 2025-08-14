@@ -1,0 +1,217 @@
+-- Ne0e Alt Account Controller (Prefix ve Komut Kutusu ile)
+
+local config = {
+    mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
+    altAccount = "semih53sn2",   -- Alt hesabının kullanıcı adı
+    prefix = ".",                      -- Komut prefix'i (ör: !goto ...)
+    commands = { "goto", "follow", "stop", "worm", "stopworm" }
+}
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local TextChatService = game:GetService("TextChatService")
+
+local isMain = (lp.Name == config.mainAccount)
+local isAlt = (lp.Name == config.altAccount)
+
+-- ALT HESAPTA SİYAH EKRAN VE YAZI
+if isAlt then
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "Ne0eAltAccountScreen"
+    gui.Parent = lp:WaitForChild("PlayerGui")
+    gui.ResetOnSpawn = false
+
+    local bg = Instance.new("Frame", gui)
+    bg.Size = UDim2.new(1,0,1,0)
+    bg.Position = UDim2.new(0,0,0,0)
+    bg.BackgroundColor3 = Color3.new(0,0,0)
+
+    local label = Instance.new("TextLabel", bg)
+    label.Size = UDim2.new(1,0,1,0)
+    label.Position = UDim2.new(0,0,0,0)
+    label.BackgroundTransparency = 1
+    label.Text = "Ne0e Alt Account Script Working"
+    label.TextColor3 = Color3.fromRGB(80, 255, 180)
+    label.Font = Enum.Font.GothamBlack
+    label.TextScaled = true
+end
+
+-- KOMUT KUTUSU (SADECE MAIN HESAPTA)
+if isMain then
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "Ne0eAltAccountCmdBox"
+    gui.Parent = lp:WaitForChild("PlayerGui")
+    gui.ResetOnSpawn = false
+
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 260, 0, 160)
+    main.Position = UDim2.new(0, 40, 0, 120)
+    main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+    local mainCorner = Instance.new("UICorner", main)
+    mainCorner.CornerRadius = UDim.new(0, 12)
+
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1, 0, 0, 32)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+    title.Text = "Ne0e Alt Account Komut Kutusu"
+    title.TextColor3 = Color3.fromRGB(80, 180, 255)
+    title.Font = Enum.Font.GothamBlack
+    title.TextScaled = true
+    title.BorderSizePixel = 0
+    local titleCorner = Instance.new("UICorner", title)
+    titleCorner.CornerRadius = UDim.new(0, 12)
+
+    local komutFrame = Instance.new("Frame", main)
+    komutFrame.Size = UDim2.new(1, -24, 0, 60)
+    komutFrame.Position = UDim2.new(0, 12, 0, 40)
+    komutFrame.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    komutFrame.BorderSizePixel = 0
+    local komutCorner = Instance.new("UICorner", komutFrame)
+    komutCorner.CornerRadius = UDim.new(0, 8)
+
+    local komutList = Instance.new("TextLabel", komutFrame)
+    komutList.Size = UDim2.new(1, -8, 1, -8)
+    komutList.Position = UDim2.new(0, 4, 0, 4)
+    komutList.BackgroundTransparency = 1
+    komutList.TextColor3 = Color3.fromRGB(180, 220, 255)
+    komutList.Font = Enum.Font.Gotham
+    komutList.TextScaled = false
+    komutList.TextSize = 14
+    komutList.TextWrapped = true
+    komutList.TextXAlignment = Enum.TextXAlignment.Left
+    komutList.TextYAlignment = Enum.TextYAlignment.Top
+
+    -- Komutları prefix ile göster
+    local komutlarText = ""
+    for i, v in ipairs(config.commands) do
+        komutlarText = komutlarText .. config.prefix .. v
+        if i < #config.commands then
+            komutlarText = komutlarText .. "   "
+        end
+    end
+    komutList.Text = komutlarText
+
+    local cmdBox = Instance.new("TextBox", main)
+    cmdBox.Size = UDim2.new(1, -24, 0, 32)
+    cmdBox.Position = UDim2.new(0, 12, 0, 108)
+    cmdBox.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    cmdBox.Text = ""
+    cmdBox.PlaceholderText = "Komut gir (örn: " .. config.prefix .. "goto KullaniciAdi)"
+    cmdBox.TextColor3 = Color3.fromRGB(30,30,40)
+    cmdBox.Font = Enum.Font.GothamBold
+    cmdBox.TextScaled = true
+    cmdBox.BorderSizePixel = 0
+    local cmdBoxCorner = Instance.new("UICorner", cmdBox)
+    cmdBoxCorner.CornerRadius = UDim.new(0, 8)
+
+    cmdBox.FocusLost:Connect(function(enter)
+        if not enter then return end
+        local msg = cmdBox.Text
+        cmdBox.Text = ""
+        if msg == "" then return end
+        -- Prefix ile başlıyorsa komut olarak gönder
+        local pattern = "^" .. config.prefix .. "(%w+)%s*(.*)"
+        local cmd, arg = msg:match(pattern)
+        if cmd then
+            local remote = game:GetService("ReplicatedStorage"):FindFirstChild("_Ne0eAltAccountRemote")
+            if remote then
+                remote:FireServer(cmd, arg)
+            end
+        end
+    end)
+end
+
+-- REMOTE
+local REMOTE_NAME = "_Ne0eAltAccountRemote"
+local remote = game:GetService("ReplicatedStorage"):FindFirstChild(REMOTE_NAME)
+if not remote then
+    remote = Instance.new("RemoteEvent")
+    remote.Name = REMOTE_NAME
+    remote.Parent = game:GetService("ReplicatedStorage")
+end
+
+-- Komutları main hesap chatten veya kutudan gönderir, alt hesap dinler
+if isMain then
+    local function onChat(msg)
+        if lp.Name ~= config.mainAccount then return end
+        local pattern = "^" .. config.prefix .. "(%w+)%s*(.*)"
+        local cmd, arg = msg:match(pattern)
+        if cmd then
+            remote:FireServer(cmd, arg)
+        end
+    end
+
+    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+        TextChatService.MessageReceived:Connect(function(msg)
+            if msg.TextSource and msg.TextSource.UserId == lp.UserId then
+                onChat(msg.Text)
+            end
+        end)
+    else
+        Players.LocalPlayer.Chatted:Connect(onChat)
+    end
+end
+
+if isAlt then
+    remote.OnServerEvent:Connect(function(sender, cmd, arg)
+        if sender.Name ~= config.mainAccount then return end
+        local char = lp.Character or lp.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+
+        if cmd == "goto" and arg and arg ~= "" then
+            local target = Players:FindFirstChild(arg)
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                char:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(0,2,0))
+            end
+        end
+
+        if cmd == "follow" and arg and arg ~= "" then
+            local target = Players:FindFirstChild(arg)
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                if not _G._ne0e_following then
+                    _G._ne0e_following = true
+                    spawn(function()
+                        while _G._ne0e_following and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+                            local myHRP = lp.Character.HumanoidRootPart
+                            local targetHRP = target.Character.HumanoidRootPart
+                            local dist = (myHRP.Position - targetHRP.Position).Magnitude
+                            if dist > 3 then
+                                hum:MoveTo(targetHRP.Position + targetHRP.CFrame.LookVector * -2)
+                            end
+                            wait(0.2)
+                        end
+                    end)
+                end
+            end
+        end
+
+        if cmd == "stop" then
+            _G._ne0e_following = false
+        end
+
+        if cmd == "worm" and arg and arg ~= "" then
+            local target = Players:FindFirstChild(arg)
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                if not _G._ne0e_worming then
+                    _G._ne0e_worming = true
+                    spawn(function()
+                        while _G._ne0e_worming and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") do
+                            lp.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0,2,0)
+                            wait(0.1)
+                        end
+                    end)
+                end
+            end
+        end
+
+        if cmd == "stopworm" then
+            _G._ne0e_worming = false
+        end
+    end)
+end
