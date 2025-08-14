@@ -1,8 +1,8 @@
--- Ne0e Alt Account Control (bang & unbang komutları eklendi, flingall kaldırıldı)
+-- Ne0e Alt Account Control (R6 dance/laugh, headsit, quit, animasyon paneli, komut kutusu güncellendi)
 
 local config = {
-    mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
-    altAccount = "semih53sn2", -- Alt hesabının kullanıcı adı
+    mainAccount = "Xper1tiz",
+    altAccount = "semih53sn2",
     commands = {
         ".goto <kullanıcı>",
         ".follow <kullanıcı>",
@@ -17,7 +17,15 @@ local config = {
         ".re",
         ".chat <mesaj>",
         ".bang <kullanıcı>",
-        ".unbang"
+        ".unbang",
+        ".headsit <kullanıcı>",
+        ".unheadsit"
+    },
+    animCommands = {
+        {name = ".dance1", anim = "rbxassetid://33796059"},
+        {name = ".dance2", anim = "rbxassetid://35654637"},
+        {name = ".dance3", anim = "rbxassetid://28488254"},
+        {name = ".laugh",  anim = "rbxassetid://33796059"} -- R6 için örnek laugh (değiştirilebilir)
     }
 }
 
@@ -27,6 +35,7 @@ local TextChatService = game:GetService("TextChatService")
 local StarterGui = game:GetService("StarterGui")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
 
 local isMain = (lp.Name == config.mainAccount)
 local isAlt = (lp.Name == config.altAccount)
@@ -73,7 +82,7 @@ if isAlt then
     label.TextScaled = true
 end
 
--- SADECE MAIN HESAPTA KOMUT LİSTESİ KUTUSU (scroll up/down)
+-- SADECE MAIN HESAPTA KOMUT LİSTESİ VE ANİMASYON PANELİ
 if isMain then
     local gui = Instance.new("ScreenGui")
     gui.Name = "Ne0eAltAccountCmdList"
@@ -81,7 +90,7 @@ if isMain then
     gui.ResetOnSpawn = false
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 340, 0, 340)
+    main.Size = UDim2.new(0, 340, 0, 380)
     main.Position = UDim2.new(0, 40, 0, 120)
     main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
     main.BorderSizePixel = 0
@@ -102,9 +111,68 @@ if isMain then
     local titleCorner = Instance.new("UICorner", title)
     titleCorner.CornerRadius = UDim.new(0, 12)
 
-    -- Scrollable komut listesi
+    -- Animasyon paneli açma oku
+    local animArrow = Instance.new("TextButton", main)
+    animArrow.Size = UDim2.new(0, 28, 0, 44)
+    animArrow.Position = UDim2.new(0, -32, 0, 40)
+    animArrow.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    animArrow.Text = "▶"
+    animArrow.TextColor3 = Color3.fromRGB(30,30,40)
+    animArrow.Font = Enum.Font.GothamBold
+    animArrow.TextScaled = true
+    animArrow.BorderSizePixel = 0
+    local animArrowCorner = Instance.new("UICorner", animArrow)
+    animArrowCorner.CornerRadius = UDim.new(0, 8)
+
+    -- Animasyon paneli (başlangıçta kapalı)
+    local animPanel = Instance.new("Frame", gui)
+    animPanel.Size = UDim2.new(0, 180, 0, 220)
+    animPanel.Position = UDim2.new(0, 388, 0, 120)
+    animPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    animPanel.Visible = false
+    animPanel.BorderSizePixel = 0
+    local animPanelCorner = Instance.new("UICorner", animPanel)
+    animPanelCorner.CornerRadius = UDim.new(0, 12)
+
+    local animTitle = Instance.new("TextLabel", animPanel)
+    animTitle.Size = UDim2.new(1, 0, 0, 32)
+    animTitle.Position = UDim2.new(0, 0, 0, 0)
+    animTitle.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+    animTitle.Text = "Animasyon Komutları"
+    animTitle.TextColor3 = Color3.fromRGB(80, 255, 180)
+    animTitle.Font = Enum.Font.GothamBlack
+    animTitle.TextScaled = true
+    animTitle.BorderSizePixel = 0
+    local animTitleCorner = Instance.new("UICorner", animTitle)
+    animTitleCorner.CornerRadius = UDim.new(0, 12)
+
+    local animScroll = Instance.new("ScrollingFrame", animPanel)
+    animScroll.Size = UDim2.new(1, -16, 1, -48)
+    animScroll.Position = UDim2.new(0, 8, 0, 40)
+    animScroll.BackgroundTransparency = 1
+    animScroll.CanvasSize = UDim2.new(0, 0, 0, #config.animCommands * 32)
+    animScroll.ScrollBarThickness = 6
+    animScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    animScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+
+    local animLayout = Instance.new("UIListLayout", animScroll)
+    animLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    animLayout.Padding = UDim.new(0, 4)
+
+    for _, v in ipairs(config.animCommands) do
+        local animLabel = Instance.new("TextLabel", animScroll)
+        animLabel.Size = UDim2.new(1, -8, 0, 28)
+        animLabel.BackgroundTransparency = 1
+        animLabel.TextColor3 = Color3.fromRGB(180, 255, 180)
+        animLabel.Font = Enum.Font.Gotham
+        animLabel.TextSize = 16
+        animLabel.Text = v.name
+        animLabel.TextXAlignment = Enum.TextXAlignment.Left
+    end
+
+    -- Komut listesi
     local scroll = Instance.new("ScrollingFrame", main)
-    scroll.Size = UDim2.new(1, -24, 1, -52)
+    scroll.Size = UDim2.new(1, -24, 1, -92)
     scroll.Position = UDim2.new(0, 12, 0, 40)
     scroll.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
     scroll.BorderSizePixel = 0
@@ -145,7 +213,7 @@ if isMain then
 
     local scrollDown = Instance.new("TextButton", main)
     scrollDown.Size = UDim2.new(0, 32, 0, 24)
-    scrollDown.Position = UDim2.new(1, -44, 1, -36)
+    scrollDown.Position = UDim2.new(1, -44, 1, -76)
     scrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
     scrollDown.Text = "▼"
     scrollDown.TextColor3 = Color3.fromRGB(30,30,40)
@@ -160,6 +228,27 @@ if isMain then
     scrollDown.MouseButton1Click:Connect(function()
         scroll.CanvasPosition = Vector2.new(0, math.min(scroll.CanvasPosition.Y + 32, scroll.AbsoluteCanvasSize.Y - scroll.AbsoluteWindowSize.Y))
     end)
+
+    -- Quit tuşu (her zaman en altta)
+    local quitBtn = Instance.new("TextButton", main)
+    quitBtn.Size = UDim2.new(1, -24, 0, 36)
+    quitBtn.Position = UDim2.new(0, 12, 1, -44)
+    quitBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    quitBtn.Text = "QUIT (.quit)"
+    quitBtn.TextColor3 = Color3.fromRGB(30,30,40)
+    quitBtn.Font = Enum.Font.GothamBold
+    quitBtn.TextScaled = true
+    quitBtn.BorderSizePixel = 0
+    local quitBtnCorner = Instance.new("UICorner", quitBtn)
+    quitBtnCorner.CornerRadius = UDim.new(0, 10)
+
+    -- Animasyon paneli aç/kapat
+    local animOpen = false
+    animArrow.MouseButton1Click:Connect(function()
+        animOpen = not animOpen
+        animPanel.Visible = animOpen
+        animArrow.Text = animOpen and "◀" or "▶"
+    end)
 end
 
 -- ALT HESAP KOMUT DİNLEME (.prefix ve oto isim)
@@ -173,6 +262,13 @@ if isAlt then
     local bangActive = false
     local bangConn = nil
     local bangAnimTrack = nil
+
+    -- Headsit değişkenleri
+    local headsitActive = false
+    local headsitConn = nil
+
+    -- Animasyon değişkenleri
+    local animTrack = nil
 
     local function stopBang()
         bangActive = false
@@ -194,17 +290,14 @@ if isAlt then
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if not humanoid then return end
 
-        -- Animasyon
         local anim = Instance.new("Animation")
-        anim.AnimationId = "rbxassetid://148840371" -- Dance animasyonu (örnek)
+        anim.AnimationId = "rbxassetid://148840371"
         bangAnimTrack = humanoid:LoadAnimation(anim)
         bangAnimTrack.Looped = true
         bangAnimTrack:Play()
         game:GetService("Debris"):AddItem(anim, 2)
 
         bangActive = true
-
-        -- Takip ve bang işlemi (arkasına ve çok yakın, çok hızlı)
         bangConn = RunService.RenderStepped:Connect(function()
             if not bangActive or not root or not targetRoot then return end
             local behind = targetRoot.CFrame.Position - (targetRoot.CFrame.LookVector * 0.5)
@@ -214,6 +307,48 @@ if isAlt then
                 bangAnimTrack:Play()
             end
         end)
+    end
+
+    local function stopHeadsit()
+        headsitActive = false
+        if headsitConn then headsitConn:Disconnect() end
+        headsitConn = nil
+    end
+
+    local function headsitPlayer(targetPlr)
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetHead = targetChar:FindFirstChild("Head")
+        if not root or not targetHead then return end
+
+        headsitActive = true
+        headsitConn = RunService.RenderStepped:Connect(function()
+            if not headsitActive or not root or not targetHead then return end
+            local above = targetHead.Position + Vector3.new(0, 0.7, 0)
+            root.CFrame = CFrame.new(above, targetHead.Position + Vector3.new(0, 2, 0))
+        end)
+    end
+
+    local function playAnim(animId)
+        local char = lp.Character
+        if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+        if animTrack then pcall(function() animTrack:Stop() end) end
+        local anim = Instance.new("Animation")
+        anim.AnimationId = animId
+        animTrack = hum:LoadAnimation(anim)
+        animTrack.Looped = true
+        animTrack:Play()
+        game:GetService("Debris"):AddItem(anim, 2)
+    end
+
+    local function stopAnim()
+        if animTrack then pcall(function() animTrack:Stop() end) end
+        animTrack = nil
     end
 
     local function handleCommand(cmd, arg)
@@ -362,14 +497,12 @@ if isAlt then
 
         -- .chat <mesaj>
         if cmd == "chat" and arg and arg ~= "" then
-            -- Yeni chat sistemi
             if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
                 local channel = TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral
                 if channel then
                     channel:SendAsync(arg)
                 end
             else
-                -- Eski chat sistemi
                 local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
                 if chatEvent then
                     local say = chatEvent:FindFirstChild("SayMessageRequest")
@@ -390,6 +523,45 @@ if isAlt then
         if cmd == "unbang" then
             stopBang()
         end
+
+        -- .headsit <kullanıcı>
+        if cmd == "headsit" and target then
+            stopHeadsit()
+            headsitPlayer(target)
+        end
+
+        -- .unheadsit
+        if cmd == "unheadsit" then
+            stopHeadsit()
+        end
+
+        -- .dance1, .dance2, .dance3, .laugh (R6 animasyonları)
+        for _, anim in ipairs(config.animCommands) do
+            if cmd == anim.name:sub(2) then -- örn: "dance1"
+                playAnim(anim.anim)
+            end
+        end
+
+        -- .quit
+        if cmd == "quit" then
+            -- Chat'e "Quitting..." yaz
+            if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+                local channel = TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral
+                if channel then
+                    channel:SendAsync("Quitting...")
+                end
+            else
+                local chatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+                if chatEvent then
+                    local say = chatEvent:FindFirstChild("SayMessageRequest")
+                    if say then
+                        say:FireServer("Quitting...", "All")
+                    end
+                end
+            end
+            wait(0.5)
+            lp:Kick("Quitting...")
+        end
     end
 
     -- Yeni chat sistemi
@@ -397,18 +569,17 @@ if isAlt then
         TextChatService.MessageReceived:Connect(function(msg)
             if msg.TextSource and msg.TextSource.Name == config.mainAccount then
                 local text = msg.Text
-                local cmd, arg = text:match("^%.(%w+)%s*(.*)") -- .prefix ile
+                local cmd, arg = text:match("^%.(%w+)%s*(.*)")
                 if cmd then
                     handleCommand(cmd:lower(), arg)
                 end
             end
         end)
     else
-        -- Eski chat sistemi
         for _, player in ipairs(Players:GetPlayers()) do
             player.Chatted:Connect(function(message)
                 if player.Name == config.mainAccount then
-                    local cmd, arg = message:match("^%.(%w+)%s*(.*)") -- .prefix ile
+                    local cmd, arg = message:match("^%.(%w+)%s*(.*)")
                     if cmd then
                         handleCommand(cmd:lower(), arg)
                     end
@@ -418,7 +589,7 @@ if isAlt then
         Players.PlayerAdded:Connect(function(player)
             player.Chatted:Connect(function(message)
                 if player.Name == config.mainAccount then
-                    local cmd, arg = message:match("^%.(%w+)%s*(.*)") -- .prefix ile
+                    local cmd, arg = message:match("^%.(%w+)%s*(.*)")
                     if cmd then
                         handleCommand(cmd:lower(), arg)
                     end
