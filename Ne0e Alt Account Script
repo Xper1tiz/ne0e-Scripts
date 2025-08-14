@@ -17,7 +17,9 @@ local config = {
         ".re",
         ".chat <mesaj>",
         ".bang <kullanıcı>",
-        ".unbang"
+        ".unbang",
+        ".headsit <kullanıcı>",
+        ".unheadsit"
     }
 }
 
@@ -389,6 +391,50 @@ if isAlt then
         -- .unbang
         if cmd == "unbang" then
             stopBang()
+        end
+    end
+
+        -- Headsit değişkenleri
+    local headsitActive = false
+    local headsitConn = nil
+
+    local function stopHeadsit()
+        headsitActive = false
+        if headsitConn then headsitConn:Disconnect() end
+        headsitConn = nil
+    end
+
+    local function headsitPlayer(targetPlr)
+        local char = lp.Character
+        local targetChar = targetPlr and targetPlr.Character
+        if not char or not targetChar then return end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local targetRoot = targetChar:FindFirstChild("Head")
+        if not root or not targetRoot then return end
+
+        headsitActive = true
+
+        headsitConn = RunService.RenderStepped:Connect(function()
+            if not headsitActive or not root or not targetRoot then return end
+            -- Head'in biraz üstüne oturur gibi pozisyonla
+            local above = targetRoot.Position + Vector3.new(0, 0.7, 0)
+            root.CFrame = CFrame.new(above, targetRoot.Position + Vector3.new(0, 2, 0))
+        end)
+    end
+
+    local function handleCommand(cmd, arg)
+        -- ...existing code...
+
+        -- .headsit <kullanıcı>
+        if cmd == "headsit" and target then
+            stopHeadsit()
+            headsitPlayer(target)
+        end
+
+        -- .unheadsit
+        if cmd == "unheadsit" then
+            stopHeadsit()
         end
     end
 
