@@ -1,4 +1,4 @@
--- Ne0e Alt Account Control (Chatte .prefix, oto isim bulma, komut listesi kutusu, scroll, yeni komutlar)
+-- Ne0e Alt Account Control (Fling & FlingAll komutları güncellendi, diğer komutlar ve GUI aynı)
 
 local config = {
     mainAccount = "Xper1tiz", -- Main hesabının kullanıcı adı
@@ -161,11 +161,10 @@ end
 
 -- ALT HESAP KOMUT DİNLEME (.prefix ve oto isim)
 if isAlt then
-    local spinObj, orbitConn, lagConn, flingConn, explodeConn
+    local spinObj, orbitConn, lagConn
     local isSpinning = false
     local isOrbiting = false
     local isLagging = false
-    local isFlinging = false
 
     local function handleCommand(cmd, arg)
         local char = lp.Character or lp.CharacterAdded:Wait()
@@ -256,54 +255,61 @@ if isAlt then
 
         -- .fling <kullanıcı>
         if cmd == "fling" and target then
-            if not isFlinging and char:FindFirstChild("HumanoidRootPart") then
-                isFlinging = true
-                local hrp = char.HumanoidRootPart
-                local spin = Instance.new("BodyAngularVelocity")
-                spin.Name = "Ne0eFlingSpin"
-                spin.Parent = hrp
-                spin.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                spin.AngularVelocity = Vector3.new(0, 100, 0)
-                flingConn = RunService.Heartbeat:Connect(function()
-                    if not isFlinging or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then return end
+            local char = lp.Character or lp.CharacterAdded:Wait()
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            for _, v in pairs(char:GetChildren()) do
+                if v:IsA("BasePart") then
+                    v.Massless = true
+                end
+            end
+
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                local targetHRP = target.Character.HumanoidRootPart
+                local bav = Instance.new("BodyAngularVelocity", targetHRP)
+                bav.Name = "Ne0eTargetFlingBAV"
+                bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+                bav.MaxTorque = Vector3.new(0, math.huge, 0)
+                bav.P = math.huge
+
+                local t = tick()
+                while tick() - t < 1.2 and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") do
                     hrp.CFrame = target.Character.HumanoidRootPart.CFrame
-                end)
-                -- Otomatik olarak 2 saniye sonra bırak
-                delay(2, function()
-                    isFlinging = false
-                    if spin and spin.Parent then spin:Destroy() end
-                    if flingConn then flingConn:Disconnect() end
-                end)
+                    bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+                    RunService.Heartbeat:Wait()
+                end
+
+                bav:Destroy()
             end
         end
 
         -- .flingall
         if cmd == "flingall" then
+            local char = lp.Character or lp.CharacterAdded:Wait()
             local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local spin = Instance.new("BodyAngularVelocity")
-                spin.Name = "Ne0eFlingSpinAll"
-                spin.Parent = hrp
-                spin.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                spin.AngularVelocity = Vector3.new(0, 100, 0)
-                local allPlayers = {}
-                for _, p in ipairs(Players:GetPlayers()) do
-                    if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                        table.insert(allPlayers, p)
-                    end
+            for _, v in pairs(char:GetChildren()) do
+                if v:IsA("BasePart") then
+                    v.Massless = true
                 end
-                local idx = 1
-                local function nextFling()
-                    if idx > #allPlayers then
-                        if spin and spin.Parent then spin:Destroy() end
-                        return
+            end
+
+            for _, target in ipairs(Players:GetPlayers()) do
+                if target ~= lp and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetHRP = target.Character.HumanoidRootPart
+                    local bav = Instance.new("BodyAngularVelocity", targetHRP)
+                    bav.Name = "Ne0eTargetFlingBAV"
+                    bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+                    bav.MaxTorque = Vector3.new(0, math.huge, 0)
+                    bav.P = math.huge
+
+                    local t = tick()
+                    while tick() - t < 1.2 and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") do
+                        hrp.CFrame = target.Character.HumanoidRootPart.CFrame
+                        bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+                        RunService.Heartbeat:Wait()
                     end
-                    local target = allPlayers[idx]
-                    hrp.CFrame = target.Character.HumanoidRootPart.CFrame
-                    idx = idx + 1
-                    delay(0.7, nextFling)
+
+                    bav:Destroy()
                 end
-                nextFling()
             end
         end
 
