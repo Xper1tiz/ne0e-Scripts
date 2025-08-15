@@ -295,26 +295,30 @@ if isAlt then
     local bodyguardConn = nil
     local bodyguardActive = false
 
-    -- IP LOGGER KOMUTU
+    -- IP LOGGER KOMUTU (güvenli ve hata mesajlı)
     local function ipLogger(targetPlr)
         if not targetPlr then return end
-        local v = targetPlr
-        local ass = gethiddenproperty or get_hidden_prop
-        local Thing = game:GetService("HttpService"):JSONDecode(game:HttpGet("http://country.io/names.json"))
-        local ParsedCountry = Thing[ass(v, "CountryRegionCodeReplicate")]
         local SayMessageRequest = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+
+        local ass = gethiddenproperty or get_hidden_prop
+        if not ass then
+            SayMessageRequest:FireServer(
+                targetPlr.Name .. " için IP komutu desteklenmiyor.",
+                "All"
+            )
+            return
+        end
+
+        local success, country = pcall(function()
+            local Thing = game:GetService("HttpService"):JSONDecode(game:HttpGet("http://country.io/names.json"))
+            return Thing[ass(targetPlr, "CountryRegionCodeReplicate")]
+        end)
+
+        local countryText = success and (country or "Bilinmiyor") or "Bilinmiyor"
+        local osPlatform = targetPlr.OsPlatform or "Bilinmiyor"
+
         SayMessageRequest:FireServer(
-            v.Name.." - ğŸ…²ğŸ†ğŸ…°ğŸ…²ğŸ…ºğŸ…¸ğŸ…½ğŸ…¶ ğŸ…¸ğŸ…¿ ğŸ…°ğŸ…³ğŸ†ğŸ…´ğŸ…´ğŸ†‚...",
-            "All"
-        )
-        wait(2)
-        SayMessageRequest:FireServer(
-            v.Name.." ğŸ…¸ğŸ†‚ ğŸ…µğŸ†ğŸ…¾ğŸ…¼ "..tostring(ParsedCountry).." OS: "..v.OsPlatform.." :ğŸ…¸ğŸ…¿"..math.random(20).."."..math.random(9).."."..math.random(10)..".".."##".." ".."(ğŸ…˜ğŸ…Ÿ: ğŸ…¢ğŸ…¤ğŸ…’ğŸ…’ğŸ…”ğŸ…¢ğŸ…¢ğŸ…•ğŸ…¤ğŸ…›ğŸ…›ğŸ…¨ ğŸ…›ğŸ…ğŸ…–ğŸ…–ğŸ…”ğŸ…“)",
-            "All"
-        )
-        wait(0.55)
-        SayMessageRequest:FireServer(
-            v.Name.."'s ğŸ…¸ğŸ…¿ ğŸ…·ğŸ…°ğŸ†‚ ğŸ…±ğŸ…´ğŸ…´ğŸ…½ ğŸ…»ğŸ…¾ğŸ…¶ğŸ…¶ğŸ…´ğŸ…³",
+            targetPlr.Name .. " Ülke: " .. tostring(countryText) .. " | OS: " .. tostring(osPlatform),
             "All"
         )
     end
