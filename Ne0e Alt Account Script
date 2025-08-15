@@ -27,6 +27,7 @@ local config = {
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
     dancePanelCommands = {
+        {name = ".namelessanimation", anim = ""},
         {name = ".dance1", anim = "rbxassetid://33796059"},
         {name = ".dance2", anim = "rbxassetid://248263260"},
         {name = ".dance3", anim = "rbxassetid://28488254"},
@@ -34,6 +35,17 @@ local config = {
         {name = ".infiniterunnerrun", anim = "rbxassetid://252557606"},
     }
 }
+
+for _, v in ipairs(config.dancePanelCommands) do
+    if cmd == v.name:sub(2) then
+        if v.name == ".namelessanimation" then
+            -- Nameless Animation Scripti çalıştır
+            loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-FE-Nameless-Animations-V4-4249"))()
+        else
+            playAnim(v.anim)
+        end
+    end
+end
 
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
