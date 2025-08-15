@@ -30,11 +30,6 @@ local config = {
         {name = ".dance1", anim = "rbxassetid://33796059"},
         {name = ".dance2", anim = "rbxassetid://248263260"},
         {name = ".dance3", anim = "rbxassetid://28488254"},
-        {name = ".dance4", anim = "rbxassetid://182435998"}, -- ek danslar
-        {name = ".dance5", anim = "rbxassetid://507771019"},
-        {name = ".dance6", anim = "rbxassetid://507776043"},
-        {name = ".dance7", anim = "rbxassetid://507777268"},
-        {name = ".dance8", anim = "rbxassetid://507777451"}
     }
 }
 
