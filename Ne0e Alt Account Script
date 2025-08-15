@@ -30,7 +30,8 @@ local config = {
         {name = ".dance1", anim = "rbxassetid://33796059"},
         {name = ".dance2", anim = "rbxassetid://248263260"},
         {name = ".dance3", anim = "rbxassetid://28488254"},
-        {name = ".Sturdydance", anim = "rbxassetid://17746180844"},
+        {name = ".headthrow", anim = "rbxassetid://35154961"},
+        {name = ".infiniterunnerrun", anim = "rbxassetid://252557606"},
     }
 }
 
@@ -117,7 +118,7 @@ if isMain then
     tabBar.Position = UDim2.new(0, 12, 0, 40)
     tabBar.BackgroundTransparency = 1
 
-    local tabNames = {"Commands", "Dances"}
+    local tabNames = {"Commands", "Animations"}
     local tabs = {}
     local selectedTab = 1
 
