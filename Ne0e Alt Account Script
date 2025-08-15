@@ -740,7 +740,7 @@ end
                     end
                 end
             end
-            wait(0.5)
+            wait(1)
             lp:Kick("Quitting...")
         end
     end
