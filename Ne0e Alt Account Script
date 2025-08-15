@@ -82,6 +82,122 @@ if isAlt then
     label.TextScaled = true
 end
 
+if cmd == "luckyblock" then
+    -- Lucky Block menüsünü aç
+    if gui then
+        gui.Enabled = false -- eski siyah ekranı kapat
+    end
+
+    -- Lucky Block menüsü oluştur
+    local luckyGui = Instance.new("ScreenGui")
+    luckyGui.Name = "LuckyBlockMenu"
+    luckyGui.Parent = lp:WaitForChild("PlayerGui")
+    luckyGui.ResetOnSpawn = false
+
+    local main = Instance.new("Frame", luckyGui)
+    main.Size = UDim2.new(0, 320, 0, 220)
+    main.Position = UDim2.new(0.5, -160, 0.5, -110)
+    main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+    local mainCorner = Instance.new("UICorner", main)
+    mainCorner.CornerRadius = UDim.new(0, 14)
+
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1, 0, 0, 38)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+    title.Text = "Lucky Block Panel"
+    title.TextColor3 = Color3.fromRGB(255, 180, 80)
+    title.Font = Enum.Font.FredokaOne
+    title.TextScaled = true
+    title.BorderSizePixel = 0
+    local titleCorner = Instance.new("UICorner", title)
+    titleCorner.CornerRadius = UDim.new(0, 14)
+
+    -- TABLAR (şimdilik sadece Lucky Block tabı var)
+    local tabBar = Instance.new("Frame", main)
+    tabBar.Size = UDim2.new(1, -24, 0, 36)
+    tabBar.Position = UDim2.new(0, 12, 0, 46)
+    tabBar.BackgroundTransparency = 1
+
+    local tabBtn = Instance.new("TextButton", tabBar)
+    tabBtn.Size = UDim2.new(0, 140, 1, 0)
+    tabBtn.Position = UDim2.new(0, 0, 0, 0)
+    tabBtn.BackgroundColor3 = Color3.fromRGB(255,180,80)
+    tabBtn.Text = "Lucky Block"
+    tabBtn.TextColor3 = Color3.fromRGB(40,40,40)
+    tabBtn.Font = Enum.Font.FredokaOne
+    tabBtn.TextScaled = true
+    tabBtn.BorderSizePixel = 0
+    local tabBtnCorner = Instance.new("UICorner", tabBtn)
+    tabBtnCorner.CornerRadius = UDim.new(0, 12)
+
+    -- Lucky Block tabı içeriği
+    local tabFrame = Instance.new("Frame", main)
+    tabFrame.Size = UDim2.new(1, -24, 1, -92)
+    tabFrame.Position = UDim2.new(0, 12, 0, 90)
+    tabFrame.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    tabFrame.BorderSizePixel = 0
+    local tabFrameCorner = Instance.new("UICorner", tabFrame)
+    tabFrameCorner.CornerRadius = UDim.new(0, 12)
+
+    -- Lucky Block alma butonu
+    local replic = game:GetService("ReplicatedStorage")
+    local blockBtn = Instance.new("TextButton", tabFrame)
+    blockBtn.Size = UDim2.new(0, 180, 0, 44)
+    blockBtn.Position = UDim2.new(0, 30, 0, 40)
+    blockBtn.BackgroundColor3 = Color3.fromRGB(255,180,80)
+    blockBtn.Text = "Lucky Block Al"
+    blockBtn.TextColor3 = Color3.fromRGB(40,40,40)
+    blockBtn.Font = Enum.Font.FredokaOne
+    blockBtn.TextScaled = true
+    blockBtn.BorderSizePixel = 0
+    local blockCorner = Instance.new("UICorner", blockBtn)
+    blockCorner.CornerRadius = UDim.new(0, 14)
+
+    blockBtn.MouseButton1Click:Connect(function()
+        local args = {[1] = 1}
+        replic.SpawnSuperBlock:FireServer(unpack(args))
+    end)
+
+    -- Oto Lucky Block alma butonu
+    local autoBlockActive = false
+    local autoBlockThread
+    local autoBtn = Instance.new("TextButton", tabFrame)
+    autoBtn.Size = UDim2.new(0, 180, 0, 44)
+    autoBtn.Position = UDim2.new(0, 30, 0, 94)
+    autoBtn.BackgroundColor3 = Color3.fromRGB(80,180,255)
+    autoBtn.Text = "Oto Lucky Block"
+    autoBtn.TextColor3 = Color3.fromRGB(40,40,40)
+    autoBtn.Font = Enum.Font.FredokaOne
+    autoBtn.TextScaled = true
+    autoBtn.BorderSizePixel = 0
+    local autoCorner = Instance.new("UICorner", autoBtn)
+    autoCorner.CornerRadius = UDim.new(0, 14)
+
+    autoBtn.MouseButton1Click:Connect(function()
+        autoBlockActive = not autoBlockActive
+        if autoBlockActive then
+            autoBtn.Text = "Oto: AKTİF"
+            autoBtn.BackgroundColor3 = Color3.fromRGB(0,255,128)
+            autoBlockThread = coroutine.create(function()
+                while autoBlockActive do
+                    local args = {[1] = 1}
+                    replic.SpawnSuperBlock:FireServer(unpack(args))
+                    wait(0.15)
+                end
+            end)
+            coroutine.resume(autoBlockThread)
+        else
+            autoBtn.Text = "Oto Lucky Block"
+            autoBtn.BackgroundColor3 = Color3.fromRGB(80,180,255)
+            autoBlockThread = nil
+        end
+    end)
+end
+
 if isMain then
     local gui = Instance.new("ScreenGui")
     gui.Name = "Ne0eAltAccountCmdList"
