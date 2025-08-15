@@ -673,39 +673,41 @@ if isAlt then
             bodyguardPlayer(target)
         end
 
-                -- YENİ PUNCH KOMUTU
+       -- YENİ PUNCH KOMUTU
         if cmd == "punch" and target then
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local targetChar = target.Character
-            local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
-            if not root or not targetChar or not targetRoot then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local targetChar = target.Character
+    local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+    if not root or not targetChar or not targetRoot then return end
 
-            -- Alt hesap hızlıca hedefin yanına gider
-            root.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -2)
+    -- Alt hesap hedefin tam önüne ve ona bakacak şekilde ışınlanır
+    local punchPos = targetRoot.Position - (targetRoot.CFrame.LookVector * 2)
+    root.CFrame = CFrame.new(punchPos, targetRoot.Position)
 
-            -- Punch animasyonu oynatılır
-            local punchAnim = Instance.new("Animation")
-            punchAnim.AnimationId = "rbxassetid://28156406"
-            local punchTrack = hum:LoadAnimation(punchAnim)
-            punchTrack:Play()
-            game:GetService("Debris"):AddItem(punchAnim, 2)
+    -- Punch animasyonu oynatılır
+    local punchAnim = Instance.new("Animation")
+    punchAnim.AnimationId = "rbxassetid://28156406"
+    local punchTrack = hum:LoadAnimation(punchAnim)
+    punchTrack:Play()
+    game:GetService("Debris"):AddItem(punchAnim, 2)
 
-            -- Hedefe fling etkisi uygulanır
-            local bav = Instance.new("BodyAngularVelocity", targetRoot)
-            bav.Name = "PunchFling"
-            bav.AngularVelocity = Vector3.new(0, 1E5, 0)
-            bav.MaxTorque = Vector3.new(0, math.huge, 0)
-            bav.P = math.huge
+    -- Hedefe fling etkisi uygulanır
+    local bav = Instance.new("BodyAngularVelocity", targetRoot)
+    bav.Name = "PunchFling"
+    bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+    bav.MaxTorque = Vector3.new(0, math.huge, 0)
+    bav.P = math.huge
 
-            local bv = Instance.new("BodyVelocity", targetRoot)
-            bv.Name = "PunchVelocity"
-            bv.MaxForce = Vector3.new(1E5, 1E5, 1E5)
-            bv.Velocity = root.CFrame.LookVector * 80 + Vector3.new(0, 40, 0)
+    local bv = Instance.new("BodyVelocity", targetRoot)
+    bv.Name = "PunchVelocity"
+    bv.MaxForce = Vector3.new(1E5, 1E5, 1E5)
+    bv.Velocity = (root.CFrame.LookVector * 80) + Vector3.new(0, 40, 0)
 
-            wait(0.5)
-            bav:Destroy()
-            bv:Destroy()
-        end
+    wait(0.5)
+    bav:Destroy()
+    bv:Destroy()
+end
+
 
         -- .quit
         if cmd == "quit" then
