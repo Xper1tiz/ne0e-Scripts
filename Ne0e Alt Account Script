@@ -89,7 +89,7 @@ if isMain then
     gui.ResetOnSpawn = false
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, 340, 0, 400)
+    main.Size = UDim2.new(0, 360, 0, 420)
     main.Position = UDim2.new(0, 40, 0, 120)
     main.BackgroundColor3 = Color3.fromRGB(32, 34, 44)
     main.BorderSizePixel = 0
@@ -102,7 +102,7 @@ if isMain then
     title.Size = UDim2.new(1, 0, 0, 32)
     title.Position = UDim2.new(0, 0, 0, 0)
     title.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    title.Text = "Ne0e Alt Account Komutlar"
+    title.Text = "Ne0e Alt Account Panel"
     title.TextColor3 = Color3.fromRGB(80, 180, 255)
     title.Font = Enum.Font.GothamBlack
     title.TextScaled = true
@@ -110,115 +110,56 @@ if isMain then
     local titleCorner = Instance.new("UICorner", title)
     titleCorner.CornerRadius = UDim.new(0, 12)
 
-    -- Animasyon paneli açma oku (sola birleşik)
-    local animArrow = Instance.new("TextButton", main)
-    animArrow.Size = UDim2.new(0, 28, 0, 44)
-    animArrow.Position = UDim2.new(0, -32, 0, 40)
-    animArrow.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    animArrow.Text = "▶"
-    animArrow.TextColor3 = Color3.fromRGB(30,30,40)
-    animArrow.Font = Enum.Font.GothamBold
-    animArrow.TextScaled = true
-    animArrow.BorderSizePixel = 0
-    local animArrowCorner = Instance.new("UICorner", animArrow)
-    animArrowCorner.CornerRadius = UDim.new(0, 8)
+    -- TAB BAR
+    local tabBar = Instance.new("Frame", main)
+    tabBar.Size = UDim2.new(1, -24, 0, 36)
+    tabBar.Position = UDim2.new(0, 12, 0, 40)
+    tabBar.BackgroundTransparency = 1
 
-    -- Animasyon paneli (sola birleşik, başlangıçta kapalı)
-    local animPanel = Instance.new("Frame", gui)
-    animPanel.Size = UDim2.new(0, 180, 0, 220)
-    animPanel.Position = UDim2.new(0, 0, 0, 120)
-    animPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
-    animPanel.Visible = false
-    animPanel.BorderSizePixel = 0
-    local animPanelCorner = Instance.new("UICorner", animPanel)
-    animPanelCorner.CornerRadius = UDim.new(0, 12)
+    local tabNames = {"Commands", "Dances", "Games"}
+    local tabs = {}
+    local selectedTab = 1
 
-    local animTitle = Instance.new("TextLabel", animPanel)
-    animTitle.Size = UDim2.new(1, 0, 0, 32)
-    animTitle.Position = UDim2.new(0, 0, 0, 0)
-    animTitle.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    animTitle.Text = "Animasyonlar"
-    animTitle.TextColor3 = Color3.fromRGB(80, 255, 180)
-    animTitle.Font = Enum.Font.GothamBlack
-    animTitle.TextScaled = true
-    animTitle.BorderSizePixel = 0
-    local animTitleCorner = Instance.new("UICorner", animTitle)
-    animTitleCorner.CornerRadius = UDim.new(0, 12)
-
-    local animScroll = Instance.new("ScrollingFrame", animPanel)
-    animScroll.Size = UDim2.new(1, -16, 1, -64)
-    animScroll.Position = UDim2.new(0, 8, 0, 36)
-    animScroll.BackgroundTransparency = 1
-    animScroll.CanvasSize = UDim2.new(0, 0, 0, #config.dancePanelCommands * 32)
-    animScroll.ScrollBarThickness = 0
-    animScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    animScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-
-    local animLayout = Instance.new("UIListLayout", animScroll)
-    animLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    animLayout.Padding = UDim.new(0, 4)
-
-    for _, v in ipairs(config.dancePanelCommands) do
-        local animLabel = Instance.new("TextLabel", animScroll)
-        animLabel.Size = UDim2.new(1, -8, 0, 28)
-        animLabel.BackgroundTransparency = 1
-        animLabel.TextColor3 = Color3.fromRGB(180, 255, 180)
-        animLabel.Font = Enum.Font.Gotham
-        animLabel.TextSize = 16
-        animLabel.Text = v.name
-        animLabel.TextXAlignment = Enum.TextXAlignment.Left
+    for i, tabName in ipairs(tabNames) do
+        local tabBtn = Instance.new("TextButton", tabBar)
+        tabBtn.Size = UDim2.new(0, 100, 1, 0)
+        tabBtn.Position = UDim2.new(0, (i-1)*110, 0, 0)
+        tabBtn.BackgroundColor3 = i == selectedTab and Color3.fromRGB(80,180,255) or Color3.fromRGB(44,48,70)
+        tabBtn.Text = tabName
+        tabBtn.TextColor3 = Color3.fromRGB(30,30,40)
+        tabBtn.Font = Enum.Font.GothamBold
+        tabBtn.TextScaled = true
+        tabBtn.BorderSizePixel = 0
+        local tabBtnCorner = Instance.new("UICorner", tabBtn)
+        tabBtnCorner.CornerRadius = UDim.new(0, 8)
+        tabs[i] = tabBtn
     end
 
-    -- Animasyon scroll up/down
-    local animScrollUp = Instance.new("TextButton", animPanel)
-    animScrollUp.Size = UDim2.new(0, 32, 0, 24)
-    animScrollUp.Position = UDim2.new(1, -40, 0, 36)
-    animScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    animScrollUp.Text = "▲"
-    animScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
-    animScrollUp.Font = Enum.Font.GothamBold
-    animScrollUp.TextScaled = true
-    local animScrollUpCorner = Instance.new("UICorner", animScrollUp)
-    animScrollUpCorner.CornerRadius = UDim.new(0, 8)
+    -- PANELLER
+    local panels = {}
 
-    local animScrollDown = Instance.new("TextButton", animPanel)
-    animScrollDown.Size = UDim2.new(0, 32, 0, 24)
-    animScrollDown.Position = UDim2.new(1, -40, 1, -32)
-    animScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    animScrollDown.Text = "▼"
-    animScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
-    animScrollDown.Font = Enum.Font.GothamBold
-    animScrollDown.TextScaled = true
-    local animScrollDownCorner = Instance.new("UICorner", animScrollDown)
-    animScrollDownCorner.CornerRadius = UDim.new(0, 8)
+    -- Commands Panel
+    local cmdPanel = Instance.new("Frame", main)
+    cmdPanel.Size = UDim2.new(1, -24, 1, -92)
+    cmdPanel.Position = UDim2.new(0, 12, 0, 80)
+    cmdPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    cmdPanel.BorderSizePixel = 0
+    local cmdPanelCorner = Instance.new("UICorner", cmdPanel)
+    cmdPanelCorner.CornerRadius = UDim.new(0, 8)
 
-    animScrollUp.MouseButton1Click:Connect(function()
-        animScroll.CanvasPosition = Vector2.new(0, math.max(animScroll.CanvasPosition.Y - 32, 0))
-    end)
-    animScrollDown.MouseButton1Click:Connect(function()
-        animScroll.CanvasPosition = Vector2.new(0, math.min(animScroll.CanvasPosition.Y + 32, animScroll.AbsoluteCanvasSize.Y - animScroll.AbsoluteWindowSize.Y))
-    end)
-
-    -- Komut listesi
-    local scroll = Instance.new("ScrollingFrame", main)
-    scroll.Size = UDim2.new(1, -24, 1, -92)
-    scroll.Position = UDim2.new(0, 12, 0, 40)
-    scroll.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
-    scroll.BorderSizePixel = 0
-    scroll.CanvasSize = UDim2.new(0, 0, 0, #config.commands * 32)
-    scroll.ScrollBarThickness = 8
-    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    scroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-
-    local scrollCorner = Instance.new("UICorner", scroll)
-    scrollCorner.CornerRadius = UDim.new(0, 8)
-
-    local layout = Instance.new("UIListLayout", scroll)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Padding = UDim.new(0, 4)
-
+    local cmdScroll = Instance.new("ScrollingFrame", cmdPanel)
+    cmdScroll.Size = UDim2.new(1, -40, 1, -8)
+    cmdScroll.Position = UDim2.new(0, 0, 0, 0)
+    cmdScroll.BackgroundTransparency = 1
+    cmdScroll.CanvasSize = UDim2.new(0, 0, 0, #config.commands * 32)
+    cmdScroll.ScrollBarThickness = 8
+    cmdScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    cmdScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+    local cmdLayout = Instance.new("UIListLayout", cmdScroll)
+    cmdLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    cmdLayout.Padding = UDim.new(0, 4)
     for _, v in ipairs(config.commands) do
-        local cmdLabel = Instance.new("TextLabel", scroll)
+        local cmdLabel = Instance.new("TextLabel", cmdScroll)
         cmdLabel.Size = UDim2.new(1, -8, 0, 28)
         cmdLabel.BackgroundTransparency = 1
         cmdLabel.TextColor3 = Color3.fromRGB(180, 220, 255)
@@ -227,47 +168,172 @@ if isMain then
         cmdLabel.Text = v
         cmdLabel.TextXAlignment = Enum.TextXAlignment.Left
     end
+    -- Scroll Up/Down Butonları (Commands)
+    local cmdScrollUp = Instance.new("TextButton", cmdPanel)
+    cmdScrollUp.Size = UDim2.new(0, 32, 0, 24)
+    cmdScrollUp.Position = UDim2.new(1, -36, 0, 8)
+    cmdScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    cmdScrollUp.Text = "▲"
+    cmdScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    cmdScrollUp.Font = Enum.Font.GothamBold
+    cmdScrollUp.TextScaled = true
+    local cmdScrollUpCorner = Instance.new("UICorner", cmdScrollUp)
+    cmdScrollUpCorner.CornerRadius = UDim.new(0, 8)
 
-    -- Scroll Up/Down Butonları
-    local scrollUp = Instance.new("TextButton", main)
-    scrollUp.Size = UDim2.new(0, 32, 0, 24)
-    scrollUp.Position = UDim2.new(1, -44, 0, 40)
-    scrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    scrollUp.Text = "▲"
-    scrollUp.TextColor3 = Color3.fromRGB(30,30,40)
-    scrollUp.Font = Enum.Font.GothamBold
-    scrollUp.TextScaled = true
-    local scrollUpCorner = Instance.new("UICorner", scrollUp)
-    scrollUpCorner.CornerRadius = UDim.new(0, 8)
+    local cmdScrollDown = Instance.new("TextButton", cmdPanel)
+    cmdScrollDown.Size = UDim2.new(0, 32, 0, 24)
+    cmdScrollDown.Position = UDim2.new(1, -36, 1, -32)
+    cmdScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    cmdScrollDown.Text = "▼"
+    cmdScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    cmdScrollDown.Font = Enum.Font.GothamBold
+    cmdScrollDown.TextScaled = true
+    local cmdScrollDownCorner = Instance.new("UICorner", cmdScrollDown)
+    cmdScrollDownCorner.CornerRadius = UDim.new(0, 8)
 
-    local scrollDown = Instance.new("TextButton", main)
-    scrollDown.Size = UDim2.new(0, 32, 0, 24)
-    scrollDown.Position = UDim2.new(1, -44, 1, -76)
-    scrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
-    scrollDown.Text = "▼"
-    scrollDown.TextColor3 = Color3.fromRGB(30,30,40)
-    scrollDown.Font = Enum.Font.GothamBold
-    scrollDown.TextScaled = true
-    local scrollDownCorner = Instance.new("UICorner", scrollDown)
-    scrollDownCorner.CornerRadius = UDim.new(0, 8)
-
-    scrollUp.MouseButton1Click:Connect(function()
-        scroll.CanvasPosition = Vector2.new(0, math.max(scroll.CanvasPosition.Y - 32, 0))
+    cmdScrollUp.MouseButton1Click:Connect(function()
+        cmdScroll.CanvasPosition = Vector2.new(0, math.max(cmdScroll.CanvasPosition.Y - 32, 0))
     end)
-    scrollDown.MouseButton1Click:Connect(function()
-        scroll.CanvasPosition = Vector2.new(0, math.min(scroll.CanvasPosition.Y + 32, scroll.AbsoluteCanvasSize.Y - scroll.AbsoluteWindowSize.Y))
+    cmdScrollDown.MouseButton1Click:Connect(function()
+        cmdScroll.CanvasPosition = Vector2.new(0, math.min(cmdScroll.CanvasPosition.Y + 32, cmdScroll.AbsoluteCanvasSize.Y - cmdScroll.AbsoluteWindowSize.Y))
     end)
+    panels[1] = cmdPanel
 
-    -- Animasyon paneli aç/kapat
-    local animOpen = false
-    animArrow.MouseButton1Click:Connect(function()
-        animOpen = not animOpen
-        animPanel.Visible = animOpen
-        animArrow.Text = animOpen and "◀" or "▶"
-        if animOpen then
-            animPanel.Position = UDim2.new(0, main.Position.X.Offset - animPanel.Size.X.Offset - 8, 0, main.Position.Y.Offset + 40)
+    -- Dances Panel
+    local dancePanel = Instance.new("Frame", main)
+    dancePanel.Size = UDim2.new(1, -24, 1, -92)
+    dancePanel.Position = UDim2.new(0, 12, 0, 80)
+    dancePanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    dancePanel.BorderSizePixel = 0
+    local dancePanelCorner = Instance.new("UICorner", dancePanel)
+    dancePanelCorner.CornerRadius = UDim.new(0, 8)
+
+    local danceScroll = Instance.new("ScrollingFrame", dancePanel)
+    danceScroll.Size = UDim2.new(1, -40, 1, -8)
+    danceScroll.Position = UDim2.new(0, 0, 0, 0)
+    danceScroll.BackgroundTransparency = 1
+    danceScroll.CanvasSize = UDim2.new(0, 0, 0, #config.dancePanelCommands * 32)
+    danceScroll.ScrollBarThickness = 8
+    danceScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    danceScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+    local danceLayout = Instance.new("UIListLayout", danceScroll)
+    danceLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    danceLayout.Padding = UDim.new(0, 4)
+    for _, v in ipairs(config.dancePanelCommands) do
+        local danceLabel = Instance.new("TextLabel", danceScroll)
+        danceLabel.Size = UDim2.new(1, -8, 0, 28)
+        danceLabel.BackgroundTransparency = 1
+        danceLabel.TextColor3 = Color3.fromRGB(180, 255, 180)
+        danceLabel.Font = Enum.Font.Gotham
+        danceLabel.TextSize = 16
+        danceLabel.Text = v.name
+        danceLabel.TextXAlignment = Enum.TextXAlignment.Left
+    end
+    -- Scroll Up/Down Butonları (Dances)
+    local danceScrollUp = Instance.new("TextButton", dancePanel)
+    danceScrollUp.Size = UDim2.new(0, 32, 0, 24)
+    danceScrollUp.Position = UDim2.new(1, -36, 0, 8)
+    danceScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    danceScrollUp.Text = "▲"
+    danceScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    danceScrollUp.Font = Enum.Font.GothamBold
+    danceScrollUp.TextScaled = true
+    local danceScrollUpCorner = Instance.new("UICorner", danceScrollUp)
+    danceScrollUpCorner.CornerRadius = UDim.new(0, 8)
+
+    local danceScrollDown = Instance.new("TextButton", dancePanel)
+    danceScrollDown.Size = UDim2.new(0, 32, 0, 24)
+    danceScrollDown.Position = UDim2.new(1, -36, 1, -32)
+    danceScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    danceScrollDown.Text = "▼"
+    danceScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    danceScrollDown.Font = Enum.Font.GothamBold
+    danceScrollDown.TextScaled = true
+    local danceScrollDownCorner = Instance.new("UICorner", danceScrollDown)
+    danceScrollDownCorner.CornerRadius = UDim.new(0, 8)
+
+    danceScrollUp.MouseButton1Click:Connect(function()
+        danceScroll.CanvasPosition = Vector2.new(0, math.max(danceScroll.CanvasPosition.Y - 32, 0))
+    end)
+    danceScrollDown.MouseButton1Click:Connect(function()
+        danceScroll.CanvasPosition = Vector2.new(0, math.min(danceScroll.CanvasPosition.Y + 32, danceScroll.AbsoluteCanvasSize.Y - danceScroll.AbsoluteWindowSize.Y))
+    end)
+    panels[2] = dancePanel
+
+    -- Games Panel (şimdilik boş)
+    local gamesPanel = Instance.new("Frame", main)
+    gamesPanel.Size = UDim2.new(1, -24, 1, -92)
+    gamesPanel.Position = UDim2.new(0, 12, 0, 80)
+    gamesPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    gamesPanel.BorderSizePixel = 0
+    local gamesPanelCorner = Instance.new("UICorner", gamesPanel)
+    gamesPanelCorner.CornerRadius = UDim.new(0, 8)
+
+    local gamesScroll = Instance.new("ScrollingFrame", gamesPanel)
+    gamesScroll.Size = UDim2.new(1, -40, 1, -8)
+    gamesScroll.Position = UDim2.new(0, 0, 0, 0)
+    gamesScroll.BackgroundTransparency = 1
+    gamesScroll.CanvasSize = UDim2.new(0, 0, 0, 32)
+    gamesScroll.ScrollBarThickness = 8
+    gamesScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    gamesScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+    local gamesLayout = Instance.new("UIListLayout", gamesScroll)
+    gamesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    gamesLayout.Padding = UDim.new(0, 4)
+    local gamesLabel = Instance.new("TextLabel", gamesScroll)
+    gamesLabel.Size = UDim2.new(1, -8, 0, 28)
+    gamesLabel.BackgroundTransparency = 1
+    gamesLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+    gamesLabel.Font = Enum.Font.Gotham
+    gamesLabel.TextSize = 16
+    gamesLabel.Text = "Games paneli yakında!"
+    gamesLabel.TextXAlignment = Enum.TextXAlignment.Left
+    -- Scroll Up/Down Butonları (Games)
+    local gamesScrollUp = Instance.new("TextButton", gamesPanel)
+    gamesScrollUp.Size = UDim2.new(0, 32, 0, 24)
+    gamesScrollUp.Position = UDim2.new(1, -36, 0, 8)
+    gamesScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    gamesScrollUp.Text = "▲"
+    gamesScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    gamesScrollUp.Font = Enum.Font.GothamBold
+    gamesScrollUp.TextScaled = true
+    local gamesScrollUpCorner = Instance.new("UICorner", gamesScrollUp)
+    gamesScrollUpCorner.CornerRadius = UDim.new(0, 8)
+
+    local gamesScrollDown = Instance.new("TextButton", gamesPanel)
+    gamesScrollDown.Size = UDim2.new(0, 32, 0, 24)
+    gamesScrollDown.Position = UDim2.new(1, -36, 1, -32)
+    gamesScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    gamesScrollDown.Text = "▼"
+    gamesScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    gamesScrollDown.Font = Enum.Font.GothamBold
+    gamesScrollDown.TextScaled = true
+    local gamesScrollDownCorner = Instance.new("UICorner", gamesScrollDown)
+    gamesScrollDownCorner.CornerRadius = UDim.new(0, 8)
+
+    gamesScrollUp.MouseButton1Click:Connect(function()
+        gamesScroll.CanvasPosition = Vector2.new(0, math.max(gamesScroll.CanvasPosition.Y - 32, 0))
+    end)
+    gamesScrollDown.MouseButton1Click:Connect(function()
+        gamesScroll.CanvasPosition = Vector2.new(0, math.min(gamesScroll.CanvasPosition.Y + 32, gamesScroll.AbsoluteCanvasSize.Y - gamesScroll.AbsoluteWindowSize.Y))
+    end)
+    panels[3] = gamesPanel
+
+    -- Tab geçiş fonksiyonu
+    local function showTab(idx)
+        for i, panel in ipairs(panels) do
+            panel.Visible = (i == idx)
+            tabs[i].BackgroundColor3 = i == idx and Color3.fromRGB(80,180,255) or Color3.fromRGB(44,48,70)
         end
-    end)
+    end
+    showTab(selectedTab)
+
+    for i, tabBtn in ipairs(tabs) do
+        tabBtn.MouseButton1Click:Connect(function()
+            selectedTab = i
+            showTab(i)
+        end)
+    end
 end
 
 if isAlt then
