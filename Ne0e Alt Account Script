@@ -110,20 +110,20 @@ if isMain then
     local titleCorner = Instance.new("UICorner", title)
     titleCorner.CornerRadius = UDim.new(0, 12)
 
-    -- TAB BAR
+    -- TAB BAR (sadece 2 tab)
     local tabBar = Instance.new("Frame", main)
     tabBar.Size = UDim2.new(1, -24, 0, 36)
     tabBar.Position = UDim2.new(0, 12, 0, 40)
     tabBar.BackgroundTransparency = 1
 
-    local tabNames = {"Commands", "Dances",}
+    local tabNames = {"Commands", "Dances"}
     local tabs = {}
     local selectedTab = 1
 
     for i, tabName in ipairs(tabNames) do
         local tabBtn = Instance.new("TextButton", tabBar)
-        tabBtn.Size = UDim2.new(0, 100, 1, 0)
-        tabBtn.Position = UDim2.new(0, (i-1)*110, 0, 0)
+        tabBtn.Size = UDim2.new(0, 140, 1, 0)
+        tabBtn.Position = UDim2.new(0, (i-1)*150, 0, 0)
         tabBtn.BackgroundColor3 = i == selectedTab and Color3.fromRGB(80,180,255) or Color3.fromRGB(44,48,70)
         tabBtn.Text = tabName
         tabBtn.TextColor3 = Color3.fromRGB(30,30,40)
