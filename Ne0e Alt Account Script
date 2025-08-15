@@ -678,7 +678,9 @@ if cmd == "punch" and target then
     local root = char:FindFirstChild("HumanoidRootPart")
     local targetChar = target.Character
     local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
-    if not root or not targetChar or not targetRoot then return end
+    -- Sağ kolu bul (R15 için "RightHand", R6 için "Right Arm")
+    local targetHand = targetChar and (targetChar:FindFirstChild("RightHand") or targetChar:FindFirstChild("Right Arm"))
+    if not root or not targetChar or not targetRoot or not targetHand then return end
 
     -- Alt hesap hedefin tam önüne ve hedefe dönük şekilde ışınlanır
     local offset = targetRoot.CFrame.LookVector * -2
@@ -693,25 +695,25 @@ if cmd == "punch" and target then
     game:GetService("Debris"):AddItem(punchAnim, 2)
 
     -- Eski fling nesnelerini temizle
-    for _, v in pairs(targetRoot:GetChildren()) do
+    for _, v in pairs(targetHand:GetChildren()) do
         if v:IsA("BodyVelocity") or v:IsA("BodyAngularVelocity") then
             v:Destroy()
         end
     end
 
-    -- Hedefe güçlü fling etkisi uygulanır
-    local bav = Instance.new("BodyAngularVelocity", targetRoot)
+    -- Sağ kola güçlü fling etkisi uygula
+    local bav = Instance.new("BodyAngularVelocity", targetHand)
     bav.Name = "PunchFling"
-    bav.AngularVelocity = Vector3.new(0, 2e5, 0)
-    bav.MaxTorque = Vector3.new(0, math.huge, 0)
+    bav.AngularVelocity = Vector3.new(0, 5e5, 0)
+    bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
     bav.P = math.huge
 
-    local bv = Instance.new("BodyVelocity", targetRoot)
+    local bv = Instance.new("BodyVelocity", targetHand)
     bv.Name = "PunchVelocity"
-    bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-    bv.Velocity = (root.CFrame.LookVector * 120) + Vector3.new(0, 120, 0)
+    bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bv.Velocity = (root.CFrame.LookVector * 200) + Vector3.new(0, 200, 0)
 
-    wait(0.6)
+    wait(0.7)
     bav:Destroy()
     bv:Destroy()
 end
