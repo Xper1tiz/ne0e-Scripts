@@ -692,23 +692,29 @@ if cmd == "punch" and target then
     punchTrack:Play()
     game:GetService("Debris"):AddItem(punchAnim, 2)
 
-    -- Hedefe fling etkisi uygulanır
+    -- Eski fling nesnelerini temizle
+    for _, v in pairs(targetRoot:GetChildren()) do
+        if v:IsA("BodyVelocity") or v:IsA("BodyAngularVelocity") then
+            v:Destroy()
+        end
+    end
+
+    -- Hedefe güçlü fling etkisi uygulanır
     local bav = Instance.new("BodyAngularVelocity", targetRoot)
     bav.Name = "PunchFling"
-    bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+    bav.AngularVelocity = Vector3.new(0, 2e5, 0)
     bav.MaxTorque = Vector3.new(0, math.huge, 0)
     bav.P = math.huge
 
     local bv = Instance.new("BodyVelocity", targetRoot)
     bv.Name = "PunchVelocity"
-    bv.MaxForce = Vector3.new(1E5, 1E5, 1E5)
-    bv.Velocity = (root.CFrame.LookVector * 80) + Vector3.new(0, 40, 0)
+    bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+    bv.Velocity = (root.CFrame.LookVector * 120) + Vector3.new(0, 120, 0)
 
-    wait(0.5)
+    wait(0.6)
     bav:Destroy()
     bv:Destroy()
 end
-
 
         -- .quit
         if cmd == "quit" then
