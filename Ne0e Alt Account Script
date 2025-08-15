@@ -674,14 +674,15 @@ if isAlt then
         end
 
        -- YENİ PUNCH KOMUTU
-        if cmd == "punch" and target then
+if cmd == "punch" and target then
     local root = char:FindFirstChild("HumanoidRootPart")
     local targetChar = target.Character
     local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
     if not root or not targetChar or not targetRoot then return end
 
-    -- Alt hesap hedefin tam önüne ve ona bakacak şekilde ışınlanır
-    local punchPos = targetRoot.Position - (targetRoot.CFrame.LookVector * 2)
+    -- Alt hesap hedefin tam önüne ve hedefe dönük şekilde ışınlanır
+    local offset = targetRoot.CFrame.LookVector * -2
+    local punchPos = targetRoot.Position + offset
     root.CFrame = CFrame.new(punchPos, targetRoot.Position)
 
     -- Punch animasyonu oynatılır
