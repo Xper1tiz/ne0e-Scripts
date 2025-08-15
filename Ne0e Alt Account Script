@@ -23,6 +23,7 @@ local config = {
         ".unheadsit",
         ".mirror <kullanıcı>",
         ".bodyguard <kullanıcı>",
+        ".punch <kullanıcı>", -- YENİ EKLENDİ
         ".quit"
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
@@ -478,6 +479,17 @@ if isAlt then
             target = findPlayerByPartialName(arg)
         end
 
+            local function handleCommand(cmd, arg)
+        local char = lp.Character or lp.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+
+        local target = nil
+        if arg and arg ~= "" then
+            target = findPlayerByPartialName(arg)
+        end
+    end
+
         if cmd == "goto" and target then
             if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                 char:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(0,2,0))
@@ -659,6 +671,40 @@ if isAlt then
         -- .bodyguard <kullanıcı>
         if cmd == "bodyguard" and target then
             bodyguardPlayer(target)
+        end
+
+                -- YENİ PUNCH KOMUTU
+        if cmd == "punch" and target then
+            local root = char:FindFirstChild("HumanoidRootPart")
+            local targetChar = target.Character
+            local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+            if not root or not targetChar or not targetRoot then return end
+
+            -- Alt hesap hızlıca hedefin yanına gider
+            root.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -2)
+
+            -- Punch animasyonu oynatılır
+            local punchAnim = Instance.new("Animation")
+            punchAnim.AnimationId = "rbxassetid://28156406"
+            local punchTrack = hum:LoadAnimation(punchAnim)
+            punchTrack:Play()
+            game:GetService("Debris"):AddItem(punchAnim, 2)
+
+            -- Hedefe fling etkisi uygulanır
+            local bav = Instance.new("BodyAngularVelocity", targetRoot)
+            bav.Name = "PunchFling"
+            bav.AngularVelocity = Vector3.new(0, 1E5, 0)
+            bav.MaxTorque = Vector3.new(0, math.huge, 0)
+            bav.P = math.huge
+
+            local bv = Instance.new("BodyVelocity", targetRoot)
+            bv.Name = "PunchVelocity"
+            bv.MaxForce = Vector3.new(1E5, 1E5, 1E5)
+            bv.Velocity = root.CFrame.LookVector * 80 + Vector3.new(0, 40, 0)
+
+            wait(0.5)
+            bav:Destroy()
+            bv:Destroy()
         end
 
         -- .quit
