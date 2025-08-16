@@ -23,7 +23,6 @@ local config = {
         ".unheadsit",
         ".mirror <kullanıcı>",
         ".bodyguard <kullanıcı>",
-        ".punchfling <kullanıcı>", -- YENİ EKLENDİ
         ".quit"
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
@@ -113,20 +112,20 @@ if isMain then
     local titleCorner = Instance.new("UICorner", title)
     titleCorner.CornerRadius = UDim.new(0, 12)
 
-    -- TAB BAR (sadece 2 tab)
+    -- TAB BAR
     local tabBar = Instance.new("Frame", main)
     tabBar.Size = UDim2.new(1, -24, 0, 36)
     tabBar.Position = UDim2.new(0, 12, 0, 40)
     tabBar.BackgroundTransparency = 1
 
-    local tabNames = {"Commands", "Animations"}
+    local tabNames = {"Commands", "Dances", "Games"}
     local tabs = {}
     local selectedTab = 1
 
     for i, tabName in ipairs(tabNames) do
         local tabBtn = Instance.new("TextButton", tabBar)
-        tabBtn.Size = UDim2.new(0, 140, 1, 0)
-        tabBtn.Position = UDim2.new(0, (i-1)*150, 0, 0)
+        tabBtn.Size = UDim2.new(0, 100, 1, 0)
+        tabBtn.Position = UDim2.new(0, (i-1)*110, 0, 0)
         tabBtn.BackgroundColor3 = i == selectedTab and Color3.fromRGB(80,180,255) or Color3.fromRGB(44,48,70)
         tabBtn.Text = tabName
         tabBtn.TextColor3 = Color3.fromRGB(30,30,40)
@@ -263,6 +262,65 @@ if isMain then
     end)
     panels[2] = dancePanel
 
+    -- Games Panel (şimdilik boş)
+    local gamesPanel = Instance.new("Frame", main)
+    gamesPanel.Size = UDim2.new(1, -24, 1, -92)
+    gamesPanel.Position = UDim2.new(0, 12, 0, 80)
+    gamesPanel.BackgroundColor3 = Color3.fromRGB(44, 48, 70)
+    gamesPanel.BorderSizePixel = 0
+    local gamesPanelCorner = Instance.new("UICorner", gamesPanel)
+    gamesPanelCorner.CornerRadius = UDim.new(0, 8)
+
+    local gamesScroll = Instance.new("ScrollingFrame", gamesPanel)
+    gamesScroll.Size = UDim2.new(1, -40, 1, -8)
+    gamesScroll.Position = UDim2.new(0, 0, 0, 0)
+    gamesScroll.BackgroundTransparency = 1
+    gamesScroll.CanvasSize = UDim2.new(0, 0, 0, 32)
+    gamesScroll.ScrollBarThickness = 8
+    gamesScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    gamesScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+    local gamesLayout = Instance.new("UIListLayout", gamesScroll)
+    gamesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    gamesLayout.Padding = UDim.new(0, 4)
+    local gamesLabel = Instance.new("TextLabel", gamesScroll)
+    gamesLabel.Size = UDim2.new(1, -8, 0, 28)
+    gamesLabel.BackgroundTransparency = 1
+    gamesLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+    gamesLabel.Font = Enum.Font.Gotham
+    gamesLabel.TextSize = 16
+    gamesLabel.Text = "Games paneli yakında!"
+    gamesLabel.TextXAlignment = Enum.TextXAlignment.Left
+    -- Scroll Up/Down Butonları (Games)
+    local gamesScrollUp = Instance.new("TextButton", gamesPanel)
+    gamesScrollUp.Size = UDim2.new(0, 32, 0, 24)
+    gamesScrollUp.Position = UDim2.new(1, -36, 0, 8)
+    gamesScrollUp.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    gamesScrollUp.Text = "▲"
+    gamesScrollUp.TextColor3 = Color3.fromRGB(30,30,40)
+    gamesScrollUp.Font = Enum.Font.GothamBold
+    gamesScrollUp.TextScaled = true
+    local gamesScrollUpCorner = Instance.new("UICorner", gamesScrollUp)
+    gamesScrollUpCorner.CornerRadius = UDim.new(0, 8)
+
+    local gamesScrollDown = Instance.new("TextButton", gamesPanel)
+    gamesScrollDown.Size = UDim2.new(0, 32, 0, 24)
+    gamesScrollDown.Position = UDim2.new(1, -36, 1, -32)
+    gamesScrollDown.BackgroundColor3 = Color3.fromRGB(80, 180, 255)
+    gamesScrollDown.Text = "▼"
+    gamesScrollDown.TextColor3 = Color3.fromRGB(30,30,40)
+    gamesScrollDown.Font = Enum.Font.GothamBold
+    gamesScrollDown.TextScaled = true
+    local gamesScrollDownCorner = Instance.new("UICorner", gamesScrollDown)
+    gamesScrollDownCorner.CornerRadius = UDim.new(0, 8)
+
+    gamesScrollUp.MouseButton1Click:Connect(function()
+        gamesScroll.CanvasPosition = Vector2.new(0, math.max(gamesScroll.CanvasPosition.Y - 32, 0))
+    end)
+    gamesScrollDown.MouseButton1Click:Connect(function()
+        gamesScroll.CanvasPosition = Vector2.new(0, math.min(gamesScroll.CanvasPosition.Y + 32, gamesScroll.AbsoluteCanvasSize.Y - gamesScroll.AbsoluteWindowSize.Y))
+    end)
+    panels[3] = gamesPanel
+
     -- Tab geçiş fonksiyonu
     local function showTab(idx)
         for i, panel in ipairs(panels) do
@@ -339,7 +397,6 @@ if isAlt then
             root.CFrame = root.CFrame:Lerp(newCFrame, 0.9)
             if bangAnimTrack and not bangAnimTrack.IsPlaying then
                 bangAnimTrack:Play()
-            ::next_loop::
             end
         end)
     end
@@ -479,17 +536,6 @@ if isAlt then
         if arg and arg ~= "" then
             target = findPlayerByPartialName(arg)
         end
-
-            local function handleCommand(cmd, arg)
-        local char = lp.Character or lp.CharacterAdded:Wait()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if not hum then return end
-
-        local target = nil
-        if arg and arg ~= "" then
-            target = findPlayerByPartialName(arg)
-        end
-    end
 
         if cmd == "goto" and target then
             if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
@@ -674,57 +720,6 @@ if isAlt then
             bodyguardPlayer(target)
         end
 
-       -- YENİ PUNCH KOMUTU
-if cmd == "punchfling" and target then
-    local char = lp.Character or lp.CharacterAdded:Wait()
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    local targetChar = target.Character
-    local targetHRP = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
-    if not hrp or not hum or not targetChar or not targetHRP then return end
-
-    -- Alt hesabı hedefin önüne taşır ve hedefe bakar
-    local offset = targetHRP.CFrame.LookVector * -2
-    hrp.CFrame = CFrame.new(targetHRP.Position + offset, targetHRP.Position)
-
-    -- Yumruk animasyonu oynatılır
-    local punchAnim = Instance.new("Animation")
-    punchAnim.AnimationId = "rbxassetid://28156406"
-    local punchTrack = hum:LoadAnimation(punchAnim)
-    punchTrack:Play()
-    game:GetService("Debris"):AddItem(punchAnim, 2)
-
-    -- Hedefin HumanoidRootPart'ındaki eski fizik nesnelerini temizle
-    for _, v in pairs(targetHRP:GetChildren()) do
-        if v:IsA("BodyVelocity") or v:IsA("BodyAngularVelocity") then
-            v:Destroy()
-        end
-    end
-
-    -- Fling için fiziksel özellikleri ayarla
-    pcall(function()
-        targetHRP.CustomPhysicalProperties = PhysicalProperties.new(0.1, 0, 0, 0, 0)
-        targetHRP.CanCollide = true
-        targetHRP.Anchored = false
-    end)
-
-    -- Fling etkisi uygula
-    local bav = Instance.new("BodyAngularVelocity", targetHRP)
-    bav.Name = "PunchFling"
-    bav.AngularVelocity = Vector3.new(0, 1e6, 0)
-    bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    bav.P = math.huge
-
-    -- Alt hesabı hedefin üstüne taşımaya devam et (animasyon bozulmaz)
-    local t = tick()
-    while tick() - t < 0.7 and targetChar and targetChar:FindFirstChild("HumanoidRootPart") do
-        hrp.CFrame = targetHRP.CFrame * CFrame.new(0, 2, 0)
-        RunService.Heartbeat:Wait()
-    end
-
-    bav:Destroy()
-end
-
         -- .quit
         if cmd == "quit" then
             if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
@@ -741,7 +736,7 @@ end
                     end
                 end
             end
-            wait(1)
+            wait(0.5)
             lp:Kick("Quitting...")
         end
     end
