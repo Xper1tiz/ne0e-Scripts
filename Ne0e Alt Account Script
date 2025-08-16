@@ -23,7 +23,6 @@ local config = {
         ".unheadsit",
         ".mirror <kullanıcı>",
         ".bodyguard <kullanıcı>",
-        ".punchfling <kullanıcı>", -- YENİ EKLENDİ
         ".quit"
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
