@@ -778,9 +778,7 @@ end
             end)
         end)
     end
-end
 
-if isAlt then
     local botMessages = {
         "I am a bot made by Ne0e.",
         "I am here to help my main account.",
