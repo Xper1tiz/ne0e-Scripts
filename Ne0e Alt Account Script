@@ -368,26 +368,30 @@ if isAlt then
         end)
     end
 
-local function playAnim(animId)
-    local char = lp.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-    if animTrack then pcall(function() animTrack:Stop() end) end
-
-    if animId:sub(1,6) == "emote:" then
-        -- Varsayılan Roblox emote'u oynat
-        hum:PlayEmote(animId:sub(7))
-        return
-    end
-
-    local anim = Instance.new("Animation")
-    anim.AnimationId = animId
-    animTrack = hum:LoadAnimation(anim)
-    animTrack.Looped = true
-    animTrack:Play()
-    game:GetService("Debris"):AddItem(anim, 2)
-end
+        -- DANCE KOMUTLARI (sadece panelde gösterilir)
+        for _, v in ipairs(config.dancePanelCommands) do
+            -- Komutun başındaki noktayı kaldır (örn: ".dance1" -> "dance1")
+            local cleanCmd = v.name
+            if cleanCmd:sub(1,1) == "." then
+                cleanCmd = cleanCmd:sub(2)
+            end
+            if cmd == cleanCmd then
+                -- Eğer anim "emote:" ile başlıyorsa Roblox'un varsayılan emote'unu oynat
+                if v.anim:sub(1,6) == "emote:" then
+                    local emoteName = v.anim:sub(7)
+                    local char = lp.Character
+                    if char then
+                        local hum = char:FindFirstChildOfClass("Humanoid")
+                        if hum then
+                            hum:PlayEmote(emoteName)
+                        end
+                    end
+                else
+                    playAnim(v.anim)
+                end
+                return
+            end
+        end
 
     local function stopAnim()
         if animTrack then pcall(function() animTrack:Stop() end) end
