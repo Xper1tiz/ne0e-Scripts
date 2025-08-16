@@ -27,9 +27,9 @@ local config = {
         -- DANCE KOMUTLARI SADECE PANELDE!
     },
     dancePanelCommands = {
-        {name = ".dance1", anim = "emote:dance"},    -- Roblox varsayılan emote
-        {name = ".dance2", anim = "emote:dance2"},   -- Roblox varsayılan emote
-        {name = ".dance3", anim = "emote:dance3"},   -- Roblox varsayılan emote
+        {name = ".dance1", anim = "emote:dance"},
+        {name = ".dance2", anim = "emote:dance2"},
+        {name = ".dance3", anim = "emote:dance3"},
         {name = ".headthrow", anim = "rbxassetid://35154961"},
         {name = ".infiniterunnerrun", anim = "rbxassetid://252557606"},
     }
@@ -640,23 +640,22 @@ if isAlt then
             stopHeadsit()
         end
 
-        -- DANCE KOMUTLARI (sadece panelde gösterilir)
-        for _, v in ipairs(config.dancePanelCommands) do
-            local cleanCmd = v.name
-            if cleanCmd:sub(1,1) == "." then
-                cleanCmd = cleanCmd:sub(2)
-            end
-            if cmd == cleanCmd then
-                if v.anim:sub(1,6) == "emote:" then
-                    local emoteName = v.anim:sub(7)
-                    if hum then
-                        hum:PlayEmote(emoteName)
-                    end
-                else
-                    playAnim(v.anim)
-                end
-                return
-            end
+        -- DANCE KOMUTLARI (eski klasik sistem)
+        if cmd == "dance1" then
+            playAnim("rbxassetid://182435998") -- Dance1
+            return
+        elseif cmd == "dance2" then
+            playAnim("rbxassetid://182436842") -- Dance2
+            return
+        elseif cmd == "dance3" then
+            playAnim("rbxassetid://182436935") -- Dance3
+            return
+        elseif cmd == "headthrow" then
+            playAnim("rbxassetid://35154961")
+            return
+        elseif cmd == "infiniterunnerrun" then
+            playAnim("rbxassetid://252557606")
+            return
         end
 
         -- .mirror <kullanıcı>
