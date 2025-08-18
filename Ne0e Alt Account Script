@@ -25,12 +25,11 @@ local config = {
         ".bodyguard <kullanıcı>",
         ".joke",
         ".quit"
-        -- DANCE KOMUTLARI SADECE PANELDE!
     },
     dancePanelCommands = {
-        {name = ".dance1", anim = "emote:dance"},
-        {name = ".dance2", anim = "emote:dance2"},
-        {name = ".dance3", anim = "emote:dance3"},
+        {name = ".dance1", anim = "rbxassetid://507771019"},
+        {name = ".dance2", anim = "rbxassetid://507776043"},
+        {name = ".dance3", anim = "rbxassetid://507777268"},
         {name = ".headthrow", anim = "rbxassetid://35154961"},
         {name = ".infiniterunnerrun", anim = "rbxassetid://252557606"},
     }
@@ -59,7 +58,6 @@ local function findPlayerByPartialName(partial)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr.Name:lower():sub(1, #partial) == partial then
             return plr
-        end
     end
     return nil
 end
@@ -928,12 +926,11 @@ if isAlt then
         end
     end
 
-    if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-        TextChatService.MessageReceived:Connect(function(msg)
-            if msg.TextSource and msg.TextSource.Name == config.mainAccount then
-                local text = msg.Text
-                local cmd, arg = text:match("^%.(%w+)%s*(.*)")
-                if cmd then
+    TextChatService.MessageReceived:Connect(function(msg)
+        if msg.TextSource and msg.TextSource.Name == config.mainAccount then
+            local text = msg.Text
+            local cmd, arg = text:match("^%.(%w+)%s*(.*)")
+            if cmd then
                     handleCommand(cmd:lower(), arg)
                 end
             end
