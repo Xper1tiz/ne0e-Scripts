@@ -506,4 +506,4 @@ function Library:CreateWindow(title)
     return Window
 end
 
-do return Library end
+return Library
