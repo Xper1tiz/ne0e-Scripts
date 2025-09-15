@@ -1,0 +1,365 @@
+local PrismUI = {
+    Config = {
+        Theme = {
+            Primary = Color3.fromRGB(103, 89, 255),      -- Vibrant purple
+            Secondary = Color3.fromRGB(24, 25, 38),      -- Dark navy
+            Background = Color3.fromRGB(18, 18, 26),     -- Deep dark
+            Text = Color3.fromRGB(255, 255, 255),        -- White
+            Accent = Color3.fromRGB(255, 92, 205),       -- Neon pink
+            Success = Color3.fromRGB(72, 255, 143),      -- Mint green
+            Error = Color3.fromRGB(255, 53, 53)          -- Bright red
+        },
+        Animation = {
+            Duration = 0.4,
+            Style = Enum.EasingStyle.Quart
+        },
+        Effects = {
+            Glassmorphism = true,
+            ParticleSystem = true,
+            Reflections = true,
+            Soundpack = true
+        }
+    }
+}
+
+-- Services
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
+
+-- Sound Effects
+local function CreateSoundSystem()
+    local sounds = {
+        Click = {ID = "rbxassetid://6895079853", Volume = 0.5},
+        Hover = {ID = "rbxassetid://6895079733", Volume = 0.2},
+        Switch = {ID = "rbxassetid://6895079992", Volume = 0.4},
+        Open = {ID = "rbxassetid://6895080116", Volume = 0.6},
+        Close = {ID = "rbxassetid://6895080355", Volume = 0.6}
+    }
+    
+    local soundSystem = {}
+    
+    for name, data in pairs(sounds) do
+        local sound = Instance.new("Sound")
+        sound.SoundId = data.ID
+        sound.Volume = data.Volume
+        sound.Parent = SoundService
+        soundSystem[name] = sound
+    end
+    
+    return soundSystem
+end
+
+-- Glassmorphism Effect
+local function ApplyGlassmorphism(frame)
+    local blur = Instance.new("ImageLabel")
+    blur.BackgroundTransparency = 1
+    blur.Image = "rbxassetid://8234339523"
+    blur.ImageTransparency = 0.7
+    blur.Size = UDim2.new(1, 20, 1, 20)
+    blur.Position = UDim2.new(0, -10, 0, -10)
+    blur.Parent = frame
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.85),
+        NumberSequenceKeypoint.new(0.5, 0.92),
+        NumberSequenceKeypoint.new(1, 0.85)
+    })
+    gradient.Rotation = 45
+    gradient.Parent = frame
+end
+
+-- Interactive Reflection System
+local function CreateReflectionSystem(parent)
+    local reflection = Instance.new("Frame")
+    reflection.BackgroundTransparency = 0.7
+    reflection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    reflection.Size = UDim2.new(0.7, 0, 0.7, 0)
+    reflection.Position = UDim2.new(0.15, 0, 0.15, 0)
+    reflection.Parent = parent
+    Instance.new("UICorner", reflection).CornerRadius = UDim.new(0, 8)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativePos = input.Position - parent.AbsolutePosition
+            local sizeX, sizeY = parent.AbsoluteSize.X, parent.AbsoluteSize.Y
+            
+            local goalPos = UDim2.new(
+                0.15 + (relativePos.X / sizeX) * 0.1,
+                0,
+                0.15 + (relativePos.Y / sizeY) * 0.1,
+                0
+            )
+            
+            TweenService:Create(reflection, 
+                TweenInfo.new(0.3, Enum.EasingStyle.Sine),
+                {Position = goalPos}
+            ):Play()
+        end
+    end)
+end
+
+-- Dynamic Particle System
+local function CreateParticleSystem(parent)
+    local particles = {}
+    local container = Instance.new("Frame")
+    container.BackgroundTransparency = 1
+    container.Size = UDim2.new(1, 0, 1, 0)
+    container.ClipsDescendants = true
+    container.Parent = parent
+    
+    local function createParticle()
+        local particle = Instance.new("Frame")
+        particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+        particle.Position = UDim2.new(math.random(), 0, 1.1, 0)
+        particle.BackgroundColor3 = PrismUI.Config.Theme.Accent
+        particle.BackgroundTransparency = 0.8
+        particle.Parent = container
+        Instance.new("UICorner", particle).CornerRadius = UDim.new(1, 0)
+        
+        return {
+            Instance = particle,
+            Speed = math.random(50, 150),
+            Rotation = math.random(-180, 180),
+            LifeTime = math.random(3, 6)
+        }
+    end
+    
+    RunService.RenderStepped:Connect(function(delta)
+        while #particles < 20 do
+            table.insert(particles, createParticle())
+        end
+        
+        for i = #particles, 1, -1 do
+            local p = particles[i]
+            p.LifeTime = p.LifeTime - delta
+            
+            if p.LifeTime <= 0 then
+                p.Instance:Destroy()
+                table.remove(particles, i)
+            else
+                local pos = p.Instance.Position
+                local newPos = UDim2.new(
+                    pos.X.Scale,
+                    pos.X.Offset,
+                    pos.Y.Scale - (p.Speed * delta / 1000),
+                    pos.Y.Offset
+                )
+                p.Instance.Position = newPos
+                p.Instance.Rotation = p.Instance.Rotation + (p.Rotation * delta)
+                p.Instance.BackgroundTransparency = 0.8 + (0.2 * (1 - p.LifeTime/6))
+            end
+        end
+    end)
+end
+
+-- Main Window Creation
+function PrismUI:CreateWindow(title)
+    local Window = {}
+    
+    -- Create main GUI
+    local PrismGUI = Instance.new("ScreenGui")
+    PrismGUI.Name = "PrismGUI"
+    PrismGUI.Parent = CoreGui
+    
+    -- Main container with modern design
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 600, 0, 400)
+    MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    MainFrame.BackgroundColor3 = PrismUI.Config.Theme.Background
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = PrismGUI
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+    
+    if PrismUI.Config.Effects.Glassmorphism then
+        ApplyGlassmorphism(MainFrame)
+    end
+    
+    -- Title bar with gradient
+    local TitleBar = Instance.new("Frame")
+    TitleBar.Size = UDim2.new(1, 0, 0, 40)
+    TitleBar.BackgroundColor3 = PrismUI.Config.Theme.Secondary
+    TitleBar.BorderSizePixel = 0
+    TitleBar.Parent = MainFrame
+    Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 12)
+    
+    local TitleGradient = Instance.new("UIGradient")
+    TitleGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, PrismUI.Config.Theme.Primary),
+        ColorSequenceKeypoint.new(1, PrismUI.Config.Theme.Accent)
+    })
+    TitleGradient.Transparency = NumberSequence.new(0.8)
+    TitleGradient.Rotation = 45
+    TitleGradient.Parent = TitleBar
+    
+    -- Title text
+    local TitleText = Instance.new("TextLabel")
+    TitleText.Size = UDim2.new(1, -40, 1, 0)
+    TitleText.Position = UDim2.new(0, 20, 0, 0)
+    TitleText.BackgroundTransparency = 1
+    TitleText.Text = title
+    TitleText.TextColor3 = PrismUI.Config.Theme.Text
+    TitleText.TextSize = 18
+    TitleText.Font = Enum.Font.GothamBold
+    TitleText.TextXAlignment = Enum.TextXAlignment.Left
+    TitleText.Parent = TitleBar
+    
+    -- Window controls
+    local CloseButton = Instance.new("ImageButton")
+    CloseButton.Size = UDim2.new(0, 24, 0, 24)
+    CloseButton.Position = UDim2.new(1, -32, 0, 8)
+    CloseButton.BackgroundTransparency = 1
+    CloseButton.Image = "rbxassetid://8233116157"
+    CloseButton.ImageColor3 = PrismUI.Config.Theme.Error
+    CloseButton.Parent = TitleBar
+    
+    -- Add tab system and content area
+    local TabContainer = Instance.new("ScrollingFrame")
+    TabContainer.Size = UDim2.new(0, 150, 1, -50)
+    TabContainer.Position = UDim2.new(0, 10, 0, 45)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.ScrollBarThickness = 2
+    TabContainer.Parent = MainFrame
+    
+    local TabList = Instance.new("UIListLayout")
+    TabList.Padding = UDim.new(0, 5)
+    TabList.Parent = TabContainer
+    
+    local ContentContainer = Instance.new("Frame")
+    ContentContainer.Size = UDim2.new(1, -170, 1, -50)
+    ContentContainer.Position = UDim2.new(0, 160, 0, 45)
+    ContentContainer.BackgroundTransparency = 1
+    ContentContainer.Parent = MainFrame
+    
+    -- Add effects
+    if PrismUI.Config.Effects.ParticleSystem then
+        CreateParticleSystem(MainFrame)
+    end
+    
+    if PrismUI.Config.Effects.Reflections then
+        CreateReflectionSystem(MainFrame)
+    end
+    
+    -- Initialize sound system
+    local Sounds = CreateSoundSystem()
+    
+    -- Make window draggable
+    local dragging, dragStart, startPos = false, nil, nil
+    
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+            Sounds.Open:Play()
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    -- Close button functionality
+    CloseButton.MouseButton1Click:Connect(function()
+        Sounds.Close:Play()
+        wait(0.2)
+        PrismGUI:Destroy()
+    end)
+    
+    -- Tab system
+    function Window:CreateTab(name)
+        local Tab = {}
+        
+        local TabButton = Instance.new("TextButton")
+        TabButton.Size = UDim2.new(1, -10, 0, 32)
+        TabButton.BackgroundColor3 = PrismUI.Config.Theme.Secondary
+        TabButton.Text = name
+        TabButton.TextColor3 = PrismUI.Config.Theme.Text
+        TabButton.TextSize = 14
+        TabButton.Font = Enum.Font.GothamSemibold
+        TabButton.Parent = TabContainer
+        Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
+        
+        local TabContent = Instance.new("ScrollingFrame")
+        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.BackgroundTransparency = 1
+        TabContent.ScrollBarThickness = 2
+        TabContent.Visible = false
+        TabContent.Parent = ContentContainer
+        
+        local ContentList = Instance.new("UIListLayout")
+        ContentList.Padding = UDim.new(0, 8)
+        ContentList.Parent = TabContent
+        
+        TabButton.MouseButton1Click:Connect(function()
+            Sounds.Click:Play()
+            for _, content in pairs(ContentContainer:GetChildren()) do
+                if content:IsA("ScrollingFrame") then
+                    content.Visible = false
+                end
+            end
+            TabContent.Visible = true
+        end)
+        
+        -- Element creation functions
+        function Tab:AddButton(text, callback)
+            local Button = Instance.new("TextButton")
+            Button.Size = UDim2.new(1, -20, 0, 36)
+            Button.BackgroundColor3 = PrismUI.Config.Theme.Secondary
+            Button.Text = text
+            Button.TextColor3 = PrismUI.Config.Theme.Text
+            Button.TextSize = 14
+            Button.Font = Enum.Font.GothamSemibold
+            Button.Parent = TabContent
+            Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+            
+            Button.MouseEnter:Connect(function()
+                Sounds.Hover:Play()
+                TweenService:Create(Button, 
+                    TweenInfo.new(0.2),
+                    {BackgroundColor3 = PrismUI.Config.Theme.Primary}
+                ):Play()
+            end)
+            
+            Button.MouseLeave:Connect(function()
+                TweenService:Create(Button, 
+                    TweenInfo.new(0.2),
+                    {BackgroundColor3 = PrismUI.Config.Theme.Secondary}
+                ):Play()
+            end)
+            
+            Button.MouseButton1Click:Connect(function()
+                Sounds.Click:Play()
+                callback()
+            end)
+        end
+        
+        -- Show first tab by default
+        if #TabContainer:GetChildren() == 2 then
+            TabContent.Visible = true
+        end
+        
+        return Tab
+    end
+    
+    return Window
+end
+
+return PrismUI
